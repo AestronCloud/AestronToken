@@ -7,7 +7,7 @@
 
 #define FUNLOG(...)
 
-map<string, string> TokenCheck::m_appIdToCert = TokenCheck::initAppIdToCert();
+std::map<string, string> TokenCheck::m_appIdToCert = TokenCheck::initAppIdToCert();
 
 TokenCheck* TokenCheck::getInstance()
 {
@@ -53,12 +53,6 @@ uint32_t TokenCheck::init(const string& appId, const string& channelName, uint64
         m_certificate = itCert->second;
     }
 
-//    //todo:目前先写死
-//    m_certificate = CERTIFICATE;
-
-    //FUNLOG(Info,"token %s, appId %s, channelName %s, uid %llu, uidStr %s, certificate %s.",
-    //        m_token.c_str(), m_appId.c_str(), m_channelName.c_str(), m_uid, m_uidStr.c_str(), m_certificate.c_str());
-    
 
     FUNLOG(Info, "use cert:%s to init.", m_certificate.c_str());
 
@@ -68,11 +62,7 @@ uint32_t TokenCheck::init(const string& appId, const string& channelName, uint64
 map<string, string> TokenCheck::initAppIdToCert()
 {
     map<string, string> tmpMap;
-    tmpMap["p53cj9va8uxefiks62t0ygmhwol14dnb"] = "dk1C286n5Sl7cPXqoYy3jgUVJbMWQR4N";
-    tmpMap["tomycvho4ae2qbi5zmae8v2fom4qfohp"] = "K0xmn4e56YKdVOhUMMSOpmT4DZMKJa8i";
-    tmpMap["yjlxf6v4es0qa5upk2bg83c7m1idtn9o"] = "n0X6AjgsbNzHlPpDy7IVRcKWoSvT1Q5q";
-    tmpMap["12345678901234567890123456789012"] = "01234567890123456789012345678901";
-    tmpMap["sxblpjll9ha3atmqwikq06qrktkjjbr7"] = "o6c2LLSBhuVSCCNUP8vMcuGlnSWoQYNXiQYXWZVQRPqbEvIx";
+    /* add appid-cert map element here */
 
     return tmpMap;
 }
