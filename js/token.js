@@ -1,42 +1,36 @@
 'use strict';
 
-const Service = require('@bigo/bgegg').Service;
 const crypto = require("crypto");
 const VERSION = '001';
 const VERSION_LENGTH = 3;
 const APP_ID_LENGTH = 32;
-const HMAC_LENGTH = 20;
-const HMAC_SHA256_LENGTH = 32;
-const CERTIFATE = '01234567890123456789012345678901';
+const CERTIFATE = 'your certifate';
 
-class SdkService extends Service {
+class SdkService {
 
   /**
-   * @description
-   * 1. tokenCheck = parseToken(token)
-   * 2. string signatureNow = genSignature(m_certificate, m_appId, m_uidStr, m_channelName, rawMsgStr);
-   * 3. 0 != signatureNow.compare(tokenCheck.m_signature)
+   * @description token校验入口
    * @param params
    */
 
   checkToken({ token, appid, channelName, uid }) {
-    const { ctx } = this;
     const { salt, genTs, effeTs, signature } = this.parseToken(token);
     // 时间校验
     if ((genTs + effeTs) < Date.now() / 1000 ) {
-      return ctx.fail({ msg: 'token已失效' });
+      console.log('token已失效');
+      return;
     }
 
     // 生成签名用于校验
     const signatureNow = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
 
     if (signatureNow === signature) {
-      return ctx.success({ data: this.genSignatureRes(token) });
+      console.log('token校验通过');
+      return;
     }
 
-    const msg = 'signatrue generated != signature recv.\n'
-    ctx.logger.warn(msg);
-    return ctx.fail({ msg });
+    console.log('signatrue generated != signature recv.');
+    return;
   }
 
   /**
@@ -47,21 +41,9 @@ class SdkService extends Service {
     let ssBf = Buffer.from(appid + uid + channelName + CERTIFATE);
     let rawBf = new Uint32Array([salt, genTs, effeTs]).reverse();
     rawBf = Buffer.from(new Uint8Array(rawBf.buffer).reverse());
-    
     let hmac = crypto.createHmac('sha1', CERTIFATE);
     hmac.update(Buffer.concat([ssBf, rawBf]));
     return hmac.digest().toString('base64');
-  }
-
-  /**
-   * @description 生成签名函数
-   * @param
-   */
-  genSignatureRes(token) {
-    const key = 'B!g0@6v7';
-    let hmac = crypto.createHmac('sha1', key);
-    hmac.update(token);
-    return hmac.digest('hex');
   }
 
   /**
@@ -71,10 +53,12 @@ class SdkService extends Service {
   parseToken(token) {
     const { ctx } = this;
     if (!token) {
-      return ctx.fail({ msg: 'token is null, return.\n' });
+      console.log('token is null, return.\n');
+      return;
     }
     if (token.substr(0, VERSION_LENGTH) !== VERSION) {
-      return ctx.fail({ msg: 'version error.\n' });
+      console.log('version error.\n');
+      return;
     }
 
     const tokenCheck = {};
@@ -102,11 +86,10 @@ class SdkService extends Service {
     tokenCheck.effeTs = base64Dv.getUint32(signByteLength + signatureLenth + 4 * otherByteLength);
     tokenCheck.isTokenValid = true;
 
-    ctx.logger.info('sdk parseToken: token %s, appId %s, crcUid %u, crcChannelName %u, generate ts %u, effective ts %u.',
+    console.log('sdk parseToken: token %s, appId %s, crcUid %u, crcChannelName %u, generate ts %u, effective ts %u.',
       token, tokenCheck.appId, tokenCheck.crc32Uid, tokenCheck.crc32ChannelName, tokenCheck.genTs, tokenCheck.effeTs);
     return tokenCheck;
   }
-
 }
 
 module.exports = SdkService;
