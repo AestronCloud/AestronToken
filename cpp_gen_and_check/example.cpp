@@ -13,14 +13,14 @@ void mythread(uint32_t threadIdx)
     printf("thread start %u.", threadIdx);
 
     string token;
-    string appid = "12345678901234567890123456789012";
+    string appid = "6nzdnlvmg9hyw90sk2oz9squs3gs2dge";
     string channelName = "myChannelId_";
     std::stringstream os;
     os << channelName << threadIdx;
-    channelName = os.str();
+    channelName = "p5yx1sk4pkx6";
 
-    string cert = "01234567890123456789012345678901";
-    uint64_t uid = 12345678;
+    string cert = "op2dztgru677tljyphuithukk14p65jklr3aqp7a248lwhpb";
+    uint64_t uid = 4611686018465182097;
 
     getToken(token, appid, channelName, cert, uid);
     printf(  "gentoken:%s  appid:%s  channel:%s cert:%s uid:%lu, threadIdx %u\n",

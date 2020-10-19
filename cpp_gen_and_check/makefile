@@ -18,7 +18,7 @@ OBJ = tokenCheck.o token.o urlEncrypt.o
 #INC = -I. 
 INCLUDE = -I../ -I../../  -I../../..
 
-TARGETS = $(BIN)/$(TLIB) token_d
+TARGETS = $(BIN)/$(TLIB)
  
 all : $(TARGETS)
 	cp $(TARGETS) ../
@@ -27,7 +27,7 @@ $(BIN)/$(TLIB) : $(OBJ)
 	$(AR) $@ $(OBJ) 
 
 
-token_d : $(OBJ) $(BIN)/libtoken.a
+token_d : $(OBJ) $(BIN)/libtoken.a example.o
 	g++ -g -o $@ ./libtoken.a -lpthread -lcrypto example.o
 	
 %.o : %.c
