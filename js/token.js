@@ -1,12 +1,49 @@
 'use strict';
 
 const crypto = require("crypto");
-const VERSION = '001';
-const VERSION_LENGTH = 3;
-const APP_ID_LENGTH = 32;
+const crc32 = require('crc32');
 const CERTIFATE = 'your certifate';
 
-class SdkService {
+const CONSTANT = {
+  VERSION: '001',
+  VERSION_LENGTH: 3,
+  APP_ID_LENGTH: 32,
+  TWO_LENGTH: 2,
+  FOUR_LENGTH: 4
+}
+
+const HELPER = {
+  /**
+   * @description Buffer to ArrayBuffer 
+   * @params Buffer
+   */
+
+  toArrayBuffer(buf) {
+    let ab = new ArrayBuffer(buf.length);
+    let view = new Uint8Array(ab);
+    for (let i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+    }
+    return ab;
+  },
+
+  /**
+   * @description ArrayBuffer to Buffer 
+   * @params ArrayBuffer
+   */
+
+  toBuffer(ab) {
+    let buf = [];
+    let view = new Uint8Array(ab);
+    for (let i = 0; i < ab.byteLength; ++i) {
+      buf[i] = view[i];
+    }
+    return Buffer.from(buf);
+  }
+}
+
+class Token {
+
 
   /**
    * @description token校验入口
@@ -20,7 +57,6 @@ class SdkService {
       console.log('token已失效');
       return;
     }
-
     // 生成签名用于校验
     const signatureNow = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
 
@@ -31,6 +67,31 @@ class SdkService {
 
     console.log('signatrue generated != signature recv.');
     return;
+  }
+
+  genToken({ appid, channelName, uid }) {
+    const { TWO_LENGTH, FOUR_LENGTH, VERSION } = CONSTANT;
+    const salt = parseInt(Math.random() * 100000);
+    const genTs = parseInt(Date.now() / 1000);
+    const effeTs = 864000; // 一天的秒数
+
+    // 生成签名
+    const signature = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
+    const sbf = Buffer.from(signature, 'base64')
+
+    const signLength = sbf.length;
+    const ab = new ArrayBuffer(TWO_LENGTH + signLength + 5 * FOUR_LENGTH);
+    const db = new DataView(ab);
+    db.setUint16(0, signLength);
+    for (let i = 0; i < signature.length; i++) {  
+      db.setUint8(i + TWO_LENGTH, sbf[i]);
+    }
+    db.setUint32(TWO_LENGTH + signLength, parseInt(crc32(uid), 16));
+    db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH, parseInt(crc32(channelName), 16));
+    db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 2, salt);
+    db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 3, genTs);
+    db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 4, effeTs);
+    return `${VERSION}${appid}${HELPER.toBuffer(ab).toString('base64')}`;
   }
 
   /**
@@ -51,7 +112,7 @@ class SdkService {
    * @param token
    */
   parseToken(token) {
-    const { ctx } = this;
+    const { TWO_LENGTH, FOUR_LENGTH, VERSION, VERSION_LENGTH, APP_ID_LENGTH } = CONSTANT;
     if (!token) {
       console.log('token is null, return.\n');
       return;
@@ -66,30 +127,33 @@ class SdkService {
 
     //todo:错误判断
     let base64Src = token.substr(VERSION_LENGTH + APP_ID_LENGTH);
-    let base64Bf = new Buffer(base64Src, 'base64');
-    let base64Ab = ctx.helper.toArrayBuffer(base64Bf);
+    let base64Bf = Buffer.from(base64Src, 'base64');
+    let base64Ab = HELPER.toArrayBuffer(base64Bf);
     let base64Dv = new DataView(base64Ab);
     // 读取前两个字节为signature length
-    const signByteLength = 2;
-    const otherByteLength = 4;
     const signatureLenth = base64Dv.getUint16(0);
 
     let signAb = new Uint8Array(base64Ab);
-    signAb = signAb.slice(signByteLength, signByteLength + signatureLenth);
+    signAb = signAb.slice(TWO_LENGTH, TWO_LENGTH + signatureLenth);
 
     //todo:反序列化
-    tokenCheck.signature = ctx.helper.toBuffer(signAb).toString('base64');
-    tokenCheck.crc32Uid = base64Dv.getUint32(signByteLength + signatureLenth);
-    tokenCheck.crc32ChannelName = base64Dv.getUint32(signByteLength + signatureLenth + otherByteLength);
-    tokenCheck.salt = base64Dv.getUint32(signByteLength + signatureLenth + 2 * otherByteLength);
-    tokenCheck.genTs = base64Dv.getUint32(signByteLength + signatureLenth + 3 * otherByteLength);
-    tokenCheck.effeTs = base64Dv.getUint32(signByteLength + signatureLenth + 4 * otherByteLength);
+    tokenCheck.signature = HELPER.toBuffer(signAb).toString('base64');
+    tokenCheck.crc32Uid = base64Dv.getUint32(TWO_LENGTH + signatureLenth);
+    tokenCheck.crc32ChannelName = base64Dv.getUint32(TWO_LENGTH + signatureLenth + FOUR_LENGTH);
+    tokenCheck.salt = base64Dv.getUint32(TWO_LENGTH + signatureLenth + 2 * FOUR_LENGTH);
+    tokenCheck.genTs = base64Dv.getUint32(TWO_LENGTH + signatureLenth + 3 * FOUR_LENGTH);
+    tokenCheck.effeTs = base64Dv.getUint32(TWO_LENGTH + signatureLenth + 4 * FOUR_LENGTH);
     tokenCheck.isTokenValid = true;
 
-    console.log('sdk parseToken: token %s, appId %s, crcUid %u, crcChannelName %u, generate ts %u, effective ts %u.',
+    console.log('sdk parseToken: token %s, appId %s, crcUid %s, crcChannelName %s, generate ts %s, effective ts %s.',
       token, tokenCheck.appId, tokenCheck.crc32Uid, tokenCheck.crc32ChannelName, tokenCheck.genTs, tokenCheck.effeTs);
     return tokenCheck;
   }
 }
 
-module.exports = SdkService;
+module.exports = Token;
+
+
+
+
+
