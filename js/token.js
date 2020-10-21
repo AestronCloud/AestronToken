@@ -75,7 +75,7 @@ class Token {
     const genTs = parseInt(Date.now() / 1000);
     const effeTs = 864000; // 一天的秒数
 
-    // 生成签名
+    // 生成签名并转为buffer
     const signature = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
     const sbf = Buffer.from(signature, 'base64')
 
