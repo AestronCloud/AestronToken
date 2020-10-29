@@ -83,7 +83,7 @@ class Token {
     const ab = new ArrayBuffer(TWO_LENGTH + signLength + 5 * FOUR_LENGTH);
     const db = new DataView(ab);
     db.setUint16(0, signLength);
-    for (let i = 0; i < signature.length; i++) {  
+    for (let i = 0; i < signLength; i++) {  
       db.setUint8(i + TWO_LENGTH, sbf[i]);
     }
     db.setUint32(TWO_LENGTH + signLength, parseInt(crc32(uid), 16));
