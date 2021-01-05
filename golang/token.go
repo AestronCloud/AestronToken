@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"strconv"
 	"time"
+	"os"
 )
 
 const VERSION_LEN int = 3
@@ -23,9 +24,6 @@ func version() string {
 type Token struct {
 	appid string // appidStr
 	cert  string //
-	salt  uint32
-	gents uint32
-	effts uint32
 }
 
 func (this *Token) init(appid string, cert string) {
@@ -33,7 +31,7 @@ func (this *Token) init(appid string, cert string) {
 	this.cert = cert
 }
 
-func (this *Token) genSignature(uid uint64, cname string) []byte {
+func (this *Token) genSignature(uid uint64, cname string, salt uint32, gents uint32, effts uint32) []byte {
 
 	buffer := new(bytes.Buffer)
 	buffer.WriteString(this.appid)
@@ -41,7 +39,7 @@ func (this *Token) genSignature(uid uint64, cname string) []byte {
 	buffer.WriteString(cname)
 	buffer.WriteString(this.cert)
 
-	binary.Write(buffer, binary.BigEndian, []uint32{this.salt, this.gents, this.effts})
+	binary.Write(buffer, binary.BigEndian, []uint32{salt, gents, effts})
 
 	key := []byte(this.cert)
 	mac := hmac.New(sha1.New, key)
@@ -53,15 +51,15 @@ func (this *Token) genSignature(uid uint64, cname string) []byte {
 /* 生成token入口 */
 func (this *Token) genToken(uid uint64, cname string) string {
 	// 生成时间，盐值，有效期
-	this.gents = uint32(time.Now().Unix())
+	var gents uint32 = uint32(time.Now().Unix())
 	rand.Seed(time.Now().UnixNano())
-	this.salt = rand.Uint32()
-	this.effts = 864000
+	var salt uint32 = rand.Uint32()
+	var effts uint32 = 864000
 
 	resbuffer := new(bytes.Buffer)
 
 	// 序列号签名
-	sigbuf := this.genSignature(uid, cname)
+	sigbuf := this.genSignature(uid, cname, salt, gents, effts)
 	var siglen uint16
 	siglen = uint16(len(sigbuf))
 	binary.Write(resbuffer, binary.BigEndian, siglen)
@@ -80,9 +78,9 @@ func (this *Token) genToken(uid uint64, cname string) string {
 	binary.Write(resbuffer, binary.BigEndian, crc32cname)
 
 	// 序列化盐值、生成时间、有效时间
-	binary.Write(resbuffer, binary.BigEndian, this.salt)
-	binary.Write(resbuffer, binary.BigEndian, this.gents)
-	binary.Write(resbuffer, binary.BigEndian, this.effts)
+	binary.Write(resbuffer, binary.BigEndian, salt)
+	binary.Write(resbuffer, binary.BigEndian, gents)
+	binary.Write(resbuffer, binary.BigEndian, effts)
 
 	res := version() + this.appid + base64.StdEncoding.EncodeToString(resbuffer.Bytes())
 
@@ -135,7 +133,7 @@ func (this *Token) parseToken(s string) (uint32, uint32, uint32, string) {
 
 func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 
-	_, gents, effts, sigstr := this.parseToken(token)
+	salt, gents, effts, sigstr := this.parseToken(token)
 
 	if gents == 0 {
 		fmt.Println("parseToken failed")
@@ -149,29 +147,26 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 	}
 
 	// check if signature valid
-	signatureNow := string(this.genSignature(uid, cname))
-
+	signatureNow := string(this.genSignature(uid, cname, salt, gents, effts))
 	if sigstr == signatureNow {
-		fmt.Println("token valid")
+		fmt.Println("token valid!!!!")
 		return true
 	} else {
-		fmt.Println("token invalid")
+		fmt.Println("token invalid????")
 		return false
 	}
 }
 
 func main() {
 	var token Token
-	token.init("rfm99e3gbtxhbbazsu5mfu8wxha72t00", "y4ichchhawpvria5u7fasb5wqpi8kjaodyqk0y7g0n1ivitv")
+	token.init("m4jxlvauzpen4rteq9p45g641kbhh3nt", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw6fq39mxe")
 	fmt.Println("token:", token.genToken(3344444444123123, "45612312312312"))
-	fmt.Println(token.checkToken("001rfm99e3gbtxhbbazsu5mfu8wxha72t00ABTfo4M1vR4BvUrB6e/CtJBatH1TMohIY9KxqMNxAAAD6F+imOgADS8A", "456", 123))
+	//fmt.Println(token.checkToken("001rfm99e3gbtxhbbazsu5mfu8wxha72t00ABxBNU1JZ0Zra3JERzlxUEpQR0NjM3BrQy82cXc9MzkxNTk5MDczOTE3NDg4MTUzOA695EZf9DHdAA0vAA==", "45612312312312", 3344444444123123))
 
-	var tmpuid uint64
-	var sidtmp uint64
-	for i := 0; i < 20; i++ {
-		tmpuid = rand.Uint64()
-		sidtmp = rand.Uint64()
-		fmt.Println("uid:", tmpuid, "sid:", sidtmp)
-		fmt.Println("Token", i, ":", token.genToken(tmpuid, strconv.FormatUint(sidtmp, 10)))
-	}
+	tokenstr := os.Args[1]
+	cname := os.Args[2]
+	uid, _ := strconv.ParseUint(os.Args[3], 10, 64)
+
+	fmt.Println(token.checkToken(tokenstr, cname, uid))
+	fmt.Println(token.genToken(uid, cname));
 }
