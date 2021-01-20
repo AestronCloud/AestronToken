@@ -17,7 +17,6 @@ class Token {
     }
 
     private function genSignature($uid, $cname, $salt, $gents, $effts) {
-        echo "" . $uid . "\n";
       return hash_hmac('sha1', $this->APPID . $uid . $cname . $this->CERTIFICATE . pack("N", $salt) . 
                 pack("N", $gents) . pack("N", $effts), $this->CERTIFICATE, true);
     }
@@ -40,6 +39,9 @@ class Token {
 
         // 有效期，一天
         $effts = 864000;
+
+        $gents = 1;
+        $salt = 1;
 
         $sigbuf = $this->genSignature($uid, $cname, $salt, $gents, $effts);
         return $this->VERSION . $this->APPID . 
