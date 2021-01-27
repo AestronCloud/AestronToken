@@ -1,15 +1,13 @@
-package sg.bigo.tokengentest;
+package sg.bigo.token;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Random;
 import java.util.zip.CRC32;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 
 public class TokenUtils {
@@ -19,7 +17,6 @@ public class TokenUtils {
     public static final int APPID_OFFSET = VER_OFFSET + VER_SIZE;
     public static final int APPID_SIZE = 32;
     public static final int TOKEN_OFFSET = APPID_OFFSET + APPID_SIZE;
-    private static final String CERTIFICATE = "K0xmn4e56YKdVOhUMMSOpmT4DZMKJa8i";
     public static final int HMAC_LENGTH = 20;
 
     public static void parseTokenInfo(String rawToken) {
@@ -65,7 +62,7 @@ public class TokenUtils {
         return byte_6;  
     }  
     
-    public static String genToken(String uid, String appid, String channelName) {
+    public static String genToken(String uid, String appid, String cert,  String channelName) {
         RawMsg rawMsg = new RawMsg();
         Random ran = new Random();
         rawMsg.salt = ran.nextInt(1000000000);
@@ -75,8 +72,8 @@ public class TokenUtils {
         rawMsg.marshall(buffer);
         try {
             TokenContent tokenContent = new TokenContent();
-            tokenContent.signature = hmacSign(CERTIFICATE, byteMerger(appid.getBytes(), 
-                    uid.getBytes(), channelName.getBytes(), CERTIFICATE.getBytes(), buffer.array()));
+            tokenContent.signature = hmacSign(cert, byteMerger(appid.getBytes(),
+                    uid.getBytes(), channelName.getBytes(), cert.getBytes(), buffer.array()));
             tokenContent.crc32Uid = crc32(uid);
             tokenContent.crc32ChannelName = crc32(channelName);
             tokenContent.rawMsg = rawMsg;
@@ -90,7 +87,7 @@ public class TokenUtils {
     }
     
     public static void main(String[] args) {
-        String token = TokenUtils.genToken("123456789", "tomycvho4ae2qbi5zmae8v2fom4qfohp", "asdfadf");
+        String token = TokenUtils.genToken("123456789", "tomycvho4ae2qbi5zmae8v2fom4qfohp", "asdasdadsad","channelName");
         System.out.println(token);
         TokenUtils.parseTokenInfo(token);
     }
