@@ -4,10 +4,7 @@ BIN = .
 
 TLIB = libtoken.a 
 
-# debug stuff 
-ifeq ($(CFLAG), DEBUG)
 CFLAGS += -std=c++11 
-endif
 
 AR  = ar -cqs
 # itermidiate objects
@@ -16,29 +13,29 @@ OBJ = tokenCheck.o token.o urlEncrypt.o
 
 # include file path
 #INC = -I. 
-INCLUDE = -I../ -I../../  -I../../..
+INCLUDE = -I.
 
-TARGETS = $(BIN)/$(TLIB)
+TARGETS = $(BIN)/$(TLIB) example.o token_d
  
 all : $(TARGETS)
-	cp $(TARGETS) ../
+#	cp $(TARGETS) ../
 
 $(BIN)/$(TLIB) : $(OBJ)
 	$(AR) $@ $(OBJ) 
 
 
 token_d : $(OBJ) $(BIN)/libtoken.a example.o
-	g++ -g -o $@ ./libtoken.a -lpthread -lcrypto example.o
+	g++ -g $(CFLAGS) $(INCLUDE) -o $@ example.o ./libtoken.a -lpthread -lcrypto -lz
 	
 %.o : %.c
 	gcc -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 %.o : %.cpp
-	g++ -g  $(INCLUDE) $(CFLAGS) -c $< -o $@
+	g++ -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 
 example.o : example.cpp
-        g++ -g -std=c++11 $(INCLUDE) $(CFLAGS) -c $< -o $@
+	g++ -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 # prepare the bin dir	
 .PHONY : prepare	
