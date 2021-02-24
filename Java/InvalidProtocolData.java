@@ -1,4 +1,4 @@
-package sg.bigo.tokengentest;
+package sg.bigo.token;
 
 public class InvalidProtocolData extends Exception {
     private static final long serialVersionUID = 1L;

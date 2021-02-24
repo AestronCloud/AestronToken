@@ -1,4 +1,4 @@
-package sg.bigo.tokengentest;
+package sg.bigo.token;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
