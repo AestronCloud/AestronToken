@@ -159,9 +159,8 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 
 func main() {
 	var token Token
-	token.init("m4jxlvauzpen4rteq9p45g641kbhh3nt", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw6fq39mxe")
+	token.init("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw")
 	fmt.Println("token:", token.genToken(3344444444123123, "45612312312312"))
-	//fmt.Println(token.checkToken("001rfm99e3gbtxhbbazsu5mfu8wxha72t00ABxBNU1JZ0Zra3JERzlxUEpQR0NjM3BrQy82cXc9MzkxNTk5MDczOTE3NDg4MTUzOA695EZf9DHdAA0vAA==", "45612312312312", 3344444444123123))
 
 	tokenstr := os.Args[1]
 	cname := os.Args[2]

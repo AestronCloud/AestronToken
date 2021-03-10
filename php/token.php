@@ -54,7 +54,7 @@ class Token {
 
 }
 
-$token = new Token("m4jxlvauzpen4rteq9p45g641kbhh3nt", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw6fq39mxe");
+$token = new Token("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw");
 echo $token->genToken(3344444444123123, "45612312312312") . "\n";
 
 ?>

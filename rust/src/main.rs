@@ -72,7 +72,7 @@ impl Token {
 }
 
 fn main() {
-    let token = Token::new("m4jxlvauzpen4rteq9p45g641kbhh3nt".to_string(), 
-    "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw6fq39mxe".to_string());
+    let token = Token::new("m4jxlvauzpen4rteq9p45g641kb".to_string(), 
+    "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw".to_string());
     println!("{}", token.gen_token(3344444444123123, "45612312312312"));
 }

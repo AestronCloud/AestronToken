@@ -13,13 +13,13 @@ void mythread(uint32_t threadIdx)
     printf("thread start %u.", threadIdx);
 
     string token;
-    string appid = "6nzdnlvmg9hyw90sk2oz9squs3gs2dge";
+    string appid = "m4jxlvauzpen4rteq9p45g641kb";
     string channelName = "myChannelId_";
     std::stringstream os;
     os << channelName << threadIdx;
     channelName = "p5yx1sk4pkx6";
 
-    string cert = "op2dztgru677tljyphuithukk14p65jklr3aqp7a248lwhpb";
+    string cert = "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw";
     uint64_t uid = 4611686018465182097;
 
     getToken(token, appid, channelName, cert, uid);
@@ -64,13 +64,6 @@ void mytest(uint32_t idx)
     printf( "veryifytoken ret:%s token:%s appid:%s channel:%s cert:%s uid:%lu\n",
            verifyRet == true ? "success" : "failed", token.c_str(), appid.c_str(),
            channelName.c_str(), cert.c_str(), uid);
-
-//    string tmptoken = token.replace(8,9, "error");
-//    bool verifyRet2 = verifyToken(tmptoken, appid, channelName, uid);
-//
-//    FUNLOG(Info, "veryifytoken2 ret:%s token:%s appid:%s channel:%s cert:%s uid:%lu\n",
-//           verifyRet2 == true ? "success" : "failed", token.c_str(), appid.c_str(),
-//           channelName.c_str(), cert.c_str(), uid);
 
     printf( "thread end %u.", idx);
 }

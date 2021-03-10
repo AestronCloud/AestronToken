@@ -40,5 +40,5 @@ class Token:
             pack(">I", effts)]))
 
 
-token = Token("m4jxlvauzpen4rteq9p45g641kbhh3nt", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw6fq39mxe")
+token = Token("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw")
 print(token.genToken(3344444444123123, "45612312312312"))
