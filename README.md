@@ -14,6 +14,7 @@ C++
 
 
 Java
+
 1.将Aestron tokenGen仓库下载或克隆至本地。
 
 2.打开cmd或gitbash工具，进入下载代码java目录，运行javac -d . *.java命令。
@@ -23,72 +24,87 @@ Java
 
 
 Python
-      开始前请确保已安装 Python 2，且运行环境为 Python 2。你可以运行如下命令行查询当前 Python 版本。
+
+   开始前请确保已安装 Python 2，且运行环境为 Python 2。你可以运行如下命令行查询当前 Python 版本。
 
       Python -V
 
-将Aestron tokenGen仓库下载或克隆至本地。
-打开 tokenGen/python/token.py文件；使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的appid、cert、uid、channelName。
-进入 RtcTokenBuilderSample.py 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
+      将Aestron tokenGen仓库下载或克隆至本地。
+      
+      打开 tokenGen/python/token.py文件；使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的appid、cert、uid、channelName。
+      
+      进入 RtcTokenBuilderSample.py 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
 
-python token.py
+      python token.py
 
 
 PHP
-       开始前请确保已安装最新版本的 PHP。
+       
+      开始前请确保已安装最新版本的 PHP。
 
-将 Aestron tokenGen仓库下载或克隆至本地。
-打开 tokenGen/php/token.php 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的appid、cert、uid、channelName。
-进入 token.php 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
-php token.php
+      将 Aestron tokenGen仓库下载或克隆至本地。
+      
+      打开 tokenGen/php/token.php 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的appid、cert、uid、channelName。
+      
+      进入 token.php 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
+      php token.php
 
 
 rust
-       开始前请确保已安装最新版本的 rust以及cargo。
+      开始前请确保已安装最新版本的 rust以及cargo。
 
-将 Aestron tokenGen仓库下载或克隆至本地。
-打开 tokenGen/rust/src/main.rs 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的值。
-进入 tokenGen/rust/ 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
+      将 Aestron tokenGen仓库下载或克隆至本地。
+      
+      打开 tokenGen/rust/src/main.rs 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的值。
+      
+      进入 tokenGen/rust/ 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
 
-cargo run
+      cargo run
 
 
 
 Node.js
+
        开始前请确保已安装最新版本的Nodejs。
 
-将 Aestron tokenGen仓库下载或克隆至本地。
-打开 tokengen/node.js/token.js 文件，修改 const CERTIFATE = 'your certifate'; 填入自己的证书。
- npm i crypto crc32   安装 依赖包
-在当前目录创建 run.js文件
+      将 Aestron tokenGen仓库下载或克隆至本地。
+      打开 tokengen/node.js/token.js 文件，修改 const CERTIFATE = 'your certifate'; 填入自己的证书。
+            npm i crypto crc32   安装 依赖包
+      在当前目录创建 run.js文件
 
-const Token= require('./token');
-const tokengen=new Token();
-console.log(`token is ${tokengen.genToken({appid:'appid',channelName:'channelName',uid:'uid'})}`)
-运行 node run.js 生成token
+            const Token= require('./token');
+            const tokengen=new Token();
+            console.log(`token is ${tokengen.genToken({appid:'appid',channelName:'channelName',uid:'uid'})}`)
+      运行 node run.js 生成token
 
 
 
 Go
+       
        开始前请确保已安装最新版本的 golang，运行命令：       
 
-go version
-将 Aestron tokenGen仓库下载或克隆至本地。
-打开 tokenGen/golang/token.go 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的值。
-进入 tokenGen/golang/ 所在路径，运行下面命令
+            go version
+      
+      将 Aestron tokenGen仓库下载或克隆至本地。
+      
+      打开 tokenGen/golang/token.go 文件。使用自己的 App ID、App 证书、用户 ID 以及频道名分别替换示例代码中的值。
+      
+      进入 tokenGen/golang/ 所在路径，运行下面命令
 
-go build token.go
-运行完成后路径下会生成名为token的可执行文件；如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
+            go build token.go
+      
+      运行完成后路径下会生成名为token的可执行文件；如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
 
-./token
+            ./token
+
 请求参数
-appidStr	你在 Aestron控制台创建项目时生成的 App ID。
-certifate	您的appid对应的证书
-channelName	标识通话的频道名称，长度在 64 字节以内。以下为支持的字符集范围：
-26 个小写英文字母 a-z；
-26 个大写应为字母 A-Z；
-10 个数字 0-9；
-空格；
-"!", "#", "$", "%", "&", "(", ")", "+", "-", ":", ";", "<", "=", ".", ">", "?", "@", "[", "]", "^", "_", " {", "}", "|", "~", ","。
-uid	用户 ID，64位无符号整数。建议设置范围：1 到 (264-1)，并保证唯一性。
-version	token的版本号，目前固定填 "001"
+      appidStr	你在 Aestron控制台创建项目时生成的 App ID。
+      certifate	您的appid对应的证书
+      channelName	标识通话的频道名称，长度在 64 字节以内。以下为支持的字符集范围：
+      26 个小写英文字母 a-z；
+      26 个大写应为字母 A-Z；
+      10 个数字 0-9；
+      空格；
+      "!", "#", "$", "%", "&", "(", ")", "+", "-", ":", ";", "<", "=", ".", ">", "?", "@", "[", "]", "^", "_", " {", "}", "|", "~", ","。
+      uid	用户 ID，64位无符号整数。建议设置范围：1 到 (264-1)，并保证唯一性。
+      version	token的版本号，目前固定填 "001"
