@@ -91,7 +91,7 @@ Go
 
 请求参数
       
-      appidStr	-你在 Aestron控制台创建项目时生成的 App ID。
+      appidStr -你在 Aestron控制台创建项目时生成的 App ID。
       
       certifate -您的appid对应的证书
       
