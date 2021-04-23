@@ -3,23 +3,23 @@ Token generator for AestronCloud
 
 C++
 
-   1. 检查本地环境，C++版本token生成库在ubuntu1~16.04.12  gcc-5.4版本下验证无误，清确认已安装openssl ssl-dev(apt install -y openssl libssl-dev)
+    1. 检查本地环境，C++版本token生成库在ubuntu1~16.04.12  gcc-5.4版本下验证无误，清确认已安装openssl ssl-dev(apt install -y openssl libssl-dev)
 
-   2. 进入cpp_check_and_gen，执行make编译测试代码；
+    2. 进入cpp_check_and_gen，执行make编译测试代码；
 
-   3. 执行token_d，会生成一系列string格式的token打印到terminal。
+    3. 执行token_d，会生成一系列string格式的token打印到terminal。
 
-   4. example.cpp里面是示例代码，将example.cpp替换成您的实现代码，并链接libtoken.a。
+    4. example.cpp里面是示例代码，将example.cpp替换成您的实现代码，并链接libtoken.a。
 
 
 
 Java
 
-   1.将Aestron tokenGen仓库下载或克隆至本地。
+      1.将Aestron tokenGen仓库下载或克隆至本地。
 
-   2.打开cmd或gitbash工具，进入下载代码java目录，运行javac -d . *.java命令。
+      2.打开cmd或gitbash工具，进入下载代码java目录，运行javac -d . *.java命令。
 
-   3.运行java sg/bigo/token/TokenUtils命令， 生成的 Token 会显示在 Terminal 中。
+      3.运行java sg/bigo/token/TokenUtils命令， 生成的 Token 会显示在 Terminal 中。
 
 
 
