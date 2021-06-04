@@ -72,10 +72,10 @@ void mytest3(uint32_t idx)
 {
     printf("thread start %u", idx);
     string token;
-    string appid = "5zaq309y5lzv4r3elxbufz6t6yzia0i5";
+    string appid = "5zaq309y5lzv4r3elxbufz6t6y";
     string channelName = "test";
 
-    string cert = "0lxwdt109ivrzg9w09dhgkk5wgjs8dqy5u08trysf0a4697c";
+    string cert = "0lxwdt109ivrzg9w09dhgkk5wgjs8dqy5u0";
     string uidstr = "😊";
 
     getToken3(token, appid, channelName, cert, uidstr);
