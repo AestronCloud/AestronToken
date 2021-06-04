@@ -33,8 +33,13 @@ public:
     string genSignature(const string &certificate, const string& appId, const string& uid, const string& channelName, const string& rawMsg);
     string genToken();
 
+
     uint32_t init(const string& appId, const string& channelName, uint64_t uid, string &certificate);
     uint32_t init(const string& appId, const string& channelName, uint64_t uid);
+
+    string version3();
+    uint32_t init3(const string& appId, const string& cert, const string& channelName, const string& uidstr);
+    string genToken3();
 
     static map<string, string> initAppIdToCert();
 

@@ -15,6 +15,18 @@ void getToken(string &token, const string &appid, const string &channelName, str
     return;
 }
 
+void getToken3(string &token, const string &appid, const string &channelName, string &cert, const string& uidstr)
+{
+    TokenCheck tokenchecker;
+    tokenchecker.init3(appid, cert, channelName, uidstr);
+    token = tokenchecker.genToken3();
+    
+    FUNLOG(Info, "####gettoken:%s %s. appid:%s, channelName:%s, cert:%s, uid:%lu", 
+                  ret == 0 ? "success" : "failed", token.c_str(),  
+                  appid.c_str(), channelName.c_str(), cert.c_str(), uid);
+
+    return;
+}
 
 bool verifyToken(const string &token, const string &appid, const string &channelName, uint64_t uid)
 {

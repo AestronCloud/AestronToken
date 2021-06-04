@@ -68,18 +68,33 @@ void mytest(uint32_t idx)
     printf( "thread end %u.", idx);
 }
 
+void mytest3(uint32_t idx)
+{
+    printf("thread start %u", idx);
+    string token;
+    string appid = "5zaq309y5lzv4r3elxbufz6t6yzia0i5";
+    string channelName = "test";
+
+    string cert = "0lxwdt109ivrzg9w09dhgkk5wgjs8dqy5u08trysf0a4697c";
+    string uidstr = "😊";
+
+    getToken3(token, appid, channelName, cert, uidstr);
+    printf( "gentoken:%s appid:%s channel:%s cert:%s uid:%s, threadIdx %u\n",
+           token.c_str(), appid.c_str(), channelName.c_str(), cert.c_str(), uidstr.c_str(), idx);
+
+    printf( "thread end %u.", idx);
+}
+
 int main()
 {
-    //init_log("example", "123", 123);
     string token;
-
 
     std::thread threads[20];
 
     uint32_t idx = 0;
     for(auto& tr: threads)
     {
-        tr = std::thread(mytest, ++idx);
+        tr = std::thread(mytest3, ++idx);
     }
     for(auto& tr: threads)
     {

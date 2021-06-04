@@ -8,7 +8,7 @@
 
 using namespace std;
 
-typedef unsigned long uint64_t; 
+typedef unsigned long uint64_t;
 
 
 #ifdef __cplusplus
@@ -20,7 +20,7 @@ void getToken(string &token, const string &appid, const string &channelName, str
 
 bool verifyToken(const string &token, const string &appid, const string &channelName, uint64_t uid);
 
-
+void getToken3(string &token, const string &appid, const string &channelName, string &cert, const string& uidstr);
 
 #ifdef __cplusplus
 }

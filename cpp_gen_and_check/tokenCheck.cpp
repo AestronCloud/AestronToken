@@ -22,6 +22,15 @@ uint32_t TokenCheck::init(const string& appId, const string& channelName, uint64
     return init(appId, channelName, uid, cert); 
 }
 
+uint32_t TokenCheck::init3(const string& appId, const string& cert, const string& channelName, const string& uidstr)
+{
+    m_appId       = appId;
+    m_certificate = cert;
+    m_channelName = channelName;
+    m_uidStr      = uidstr;
+    return 0;
+}
+
 uint32_t TokenCheck::init(const string& appId, const string& channelName, uint64_t uid, string& certificate)
 {
     if ( certificate.empty())
@@ -46,7 +55,6 @@ uint32_t TokenCheck::init(const string& appId, const string& channelName, uint64
     sUidStr << m_uid;
     m_uidStr = sUidStr.str();
 
-    //m_certificate = "";
     map<string, string>::iterator itCert = m_appIdToCert.find(m_appId);
     if(itCert != m_appIdToCert.end())
     {
@@ -86,6 +94,11 @@ string TokenCheck::version()
     return "001";
 }
 
+string TokenCheck::version3()
+{
+    return "003";
+}
+
 bool TokenCheck::checkToken(const string &token)
 {
     const static uint32_t effecTsGap = 10; //10s的过期波动时间
@@ -118,13 +131,6 @@ bool TokenCheck::checkToken(const string &token)
         FUNLOG(Info,"signatrue generated != signature recv.\n");
         return false;
     }
-
-    //校验时间
-    //if(m_genTs + m_effeTs + effecTsGap < time.now())
-    //{
-        //FUNLOG(Info, "token is not effective, genTs %u, effeTs %u, effeGap %u, now %u.", m_genTs, m_effeTs, effecTsGap, SelectorEPoll::m_iNow);
-    //    return false;
-    //}
 
     return true;
 }
@@ -234,4 +240,43 @@ string TokenCheck::genToken()
     return ss.str();
 }
 
+string TokenCheck::genToken3()
+{
+    //有效期一天
+    RawMsg rawMsg(GenerateSalt(), (uint32_t)time(NULL), 24 * 3600);
 
+    PackBuffer packBufMsg;
+    PackNew packMsg(packBufMsg);
+    rawMsg.marshal(packMsg);
+
+    string rawMsgStr = string(packMsg.data(), packMsg.size());
+    m_signature = genSignature(m_certificate, m_appId, m_uidStr, m_channelName, rawMsgStr);
+    m_crc32Uid = crc32(0, reinterpret_cast<Bytef*>(const_cast<char*>(m_uidStr.c_str())), m_uidStr.length());
+    m_crc32ChannelName = crc32(0, reinterpret_cast<Bytef*>(const_cast<char*>(m_channelName.c_str())), m_channelName.length());
+
+    //序列化
+    TokenContent content;
+    content.signature = m_signature;
+    content.crc32Uid = m_crc32Uid;
+    content.crc32ChannelName = m_crc32ChannelName;
+    content.msg = rawMsg;
+
+    PackBuffer packBuf;
+    PackNew tokenPack(packBuf);
+    content.marshal(tokenPack);
+
+    //base64
+    uint8_t base64Result[1024];
+    uint32_t resultLen = 0;
+
+    urlEncrypt::base64Encode((unsigned char*)tokenPack.data(), tokenPack.size(), base64Result, &resultLen);
+
+    base64Result[resultLen] = '\0';
+
+    std::stringstream ss;
+    ss << TokenCheck::version3() << m_appId << string((char*)base64Result, resultLen);
+
+    FUNLOG(Info,"gentoken %s, baseResult %s, crc32Uid %u, salt %u, generate ts %u, effective ts %u.\n",
+            ss.str().c_str(), base64Result, m_crc32Uid, rawMsg.salt, rawMsg.generateTs, rawMsg.effectiveTs);
+    return ss.str();
+}
