@@ -2,8 +2,9 @@
 Token generator for AestronCloud
 
 C++
+
     1. Check the local environment. The C++ version of the token generation library is verified with Ubuntu 1~16.04.12 and gcc-5.4.
-     Please also confirm that openssl ssl-dev has been installed or you can install with (apt install -y openssl libssl-dev). 
+       Please also confirm that openssl ssl-dev has been installed or you can install with (apt install -y openssl libssl-dev). 
        检查本地环境，C++版本token生成库在ubuntu1~16.04.12  gcc-5.4版本下验证无误，清确认已安装openssl ssl-dev(apt install -y openssl libssl-dev)
 
     2. Go to the cpp_check_and_gen directory and execute ‘make’ to compile the test code;
