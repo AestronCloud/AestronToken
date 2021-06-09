@@ -144,8 +144,8 @@ Request parameters
       certificate -The certificate corresponding to your App ID. 
       certificate -您的appid对应的证书
       
-      channelName    - The channel name. It cannot exceed 64 bytes. The following are the supported characters:
-      channelName	-标识通话的频道名称，长度在 64 字节以内。以下为支持的字符集范围：
+      channelName -The channel name. It cannot exceed 64 bytes. The following are the supported characters:
+      channelName -标识通话的频道名称，长度在 64 字节以内。以下为支持的字符集范围：
          26 lowercase English alphabets (a-z);
          26 个小写英文字母 a-z；
          26 uppercase English alphabets (A-Z);
@@ -159,5 +159,5 @@ Request parameters
       uid - The ID of a user. It is a 64-bit unsigned integer. We recommend you use a value in the range [1, UINT64_MAX] and guarantee the uniqueness.
       uid -用户 ID，64位无符号整数。建议设置范围：1 到 UINT64_MAX，并保证唯一性。
       
-      version    - The version number of the token. Currently, it is fixed as "001"；And fixed as "003" in web sdk.
+      version -The version number of the token. Currently, it is fixed as "001"；And fixed as "003" in web sdk.
       version -token的版本号，目前固定填 "001"; Web sdk 固定填"003"。
