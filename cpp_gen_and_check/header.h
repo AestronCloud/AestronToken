@@ -1,6 +1,5 @@
 #ifndef CORE_HEADER_H
 #define CORE_HEADER_H
-//#include "res_code.h"
 #include "int_types.h"
 
 #define RES_SUCCESS 200

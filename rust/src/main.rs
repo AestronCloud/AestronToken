@@ -121,9 +121,12 @@ impl Token {
 }
 
 fn main() {
-    let token = Token::new("myappid".to_string(), 
-    "mycert_string".to_string());
+    // init token generator witch appid and cert.
+    let token = Token::new("myappid".to_string(), "mycert_string".to_string());
+
+    // generator token.
     println!("{}", token.gen_token(3344444444123123, "45612312312312"));
 
+    // generator token v3, which is used by webrtc
     println!("{}", token.gen_token_v3("Rubin", "test"));
 }

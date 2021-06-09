@@ -10,7 +10,8 @@
 #include "protocol.h"
 
 
-using namespace TokenChecker;
+namespace Aestron {
+namespace Token {
 
 const uint32_t VERSION_LENGTH = 3;
 const uint32_t APP_ID_LENGTH = 32;
@@ -30,19 +31,18 @@ struct TokenResult {
     bool m_isTokenValid{false};
 };
 
-class TokenCheck
+class TokenFactory
 {
 public:
-    static TokenCheck* getInstance();
-    TokenCheck() = default;
-    ~TokenCheck() = default;
+    static TokenFactory* getInstance();
+    ~TokenFactory() = default;
 
     uint32_t init(const std::string& appId, const std::string &certificate);
 
     std::string version();
     std::string version3();
     bool checkToken(const std::string& token, uint64_t uid, const std::string& channelName);
-    TokenCheck parseToken(const std::string& token, TokenResult& result);
+    void parseToken(const std::string& token, TokenResult& result);
     std::string genSignature(const std::string &certificate, const std::string& appId, const std::string& uid, const std::string& channelName, const std::string& rawMsg);
 
 
@@ -50,8 +50,13 @@ public:
     std::string genTokenV3(const std::string& uidstr, const std::string& channelName);
 
 public:
+    TokenFactory() = default;
     std::string m_appId{""};
     std::string m_certificate{""};
 };
+
+}// namespace Token
+
+}// namespace Aestron
 
 #endif //MEDIALBS_TOKENCHECK_H

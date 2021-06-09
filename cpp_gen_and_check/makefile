@@ -4,11 +4,12 @@ BIN = .
 
 TLIB = libtoken.a 
 
-CFLAGS += -std=c++11 
+CFLAGS += -std=c++11
+# if you want debug info
+#CFLAGS += -std=c++11 -DDEBUG
 
 AR  = ar -cqs
-# itermidiate objects
-OBJ = tokenCheck.o token.o urlEncrypt.o 
+OBJ = tokenFactory.o urlEncrypt.o 
 
 INCLUDE = -I.
 

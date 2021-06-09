@@ -11,6 +11,9 @@ C++
 
     4. example.cpp里面是示例代码，将example.cpp替换成您的实现代码，并链接libtoken.a。
 
+    5. example.cpp代码中genToken用于生成Aestron sdk进频道token；
+       genTokenV3用于生成Aestron web sdk进频道token，uidstr参数需与进频道时的userName相同。
+
 
 
 Java
@@ -35,6 +38,8 @@ Python
 
       python token.py
 
+      genToken用于生成Aestron sdk进频道token；
+      genTokenV3用于生成Aestron web sdk进频道token，uidstr参数需与进频道时的userName相同。
 
 PHP
        
@@ -47,6 +52,8 @@ PHP
       进入 token.php 所在路径，然后运行如下命令行生成 Token。 生成的 Token 会显示在 Terminal 中。
       php token.php
 
+      genToken用于生成Aestron sdk进频道token；
+      genTokenV3用于生成Aestron web sdk进频道token，uidstr参数需与进频道时的userName相同。
 
 rust
       开始前请确保已安装最新版本的 rust以及cargo。
@@ -59,6 +66,8 @@ rust
 
       cargo run
 
+      gen_token用于生成Aestron sdk进频道token；
+      gen_token_v3用于生成Aestron web sdk进频道token，uidstr参数需与进频道时的userName相同。
 
 
 Node.js
@@ -89,6 +98,9 @@ Go
       
       运行完成后路径下会生成名为token的可执行文件；运行./token， 生成的 Token 会显示在 Terminal 中。
 
+      genToken用于生成Aestron sdk进频道token；
+      genTokenV3用于生成Aestron web sdk进频道token，uidstr参数需与进频道时的userName相同。
+
 请求参数
       
       appidStr -你在 Aestron控制台创建项目时生成的 App ID。
@@ -104,4 +116,4 @@ Go
          
       uid -用户 ID，64位无符号整数。建议设置范围：1 到 UINT64_MAX，并保证唯一性。
       
-      version -token的版本号，目前固定填 "001"
+      version -token的版本号，目前固定填 "001"; Web sdk 固定填"003"

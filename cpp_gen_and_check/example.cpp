@@ -1,52 +1,39 @@
 #include <stdio.h>
-#include "token.h"
 #include <sstream>
 #include <stdio.h>
+#include "tokenFactory.h"
 
 using namespace std;
-#define FUNLOG(level, fmt, ...)  do { printf( "[%s]: " fmt, __FUNCTION__, __VA_ARGS__); printf("\n"); } while(0)
-
-void rtcToken()
-{
-    string token;
-    string appid = "myappid_string";
-    string cert = "mycert_string";
-    
-    string channelName = "myChannelId_0";
-    uint64_t uid = 12345678;
-
-    getToken(token, appid, channelName, cert, uid);
-    printf("rtcToken:%s appid:%s channel:%s cert:%s uid:%lu\n",
-           token.c_str(), appid.c_str(), channelName.c_str(), cert.c_str(), uid);
-
-    bool verifyRet = verifyToken(token, appid, cert, uid, channelName);
-
-    printf("veryifytoken ret:%s token:%s appid:%s channel:%s cert:%s uid:%lu\n",
-           verifyRet == true ? "success" : "failed", token.c_str(), appid.c_str(),
-           channelName.c_str(), cert.c_str(), uid);
-}
-
-void rtcTokenV3()
-{
-    string token;
-    string appid = "myappid_string";
-    string cert = "mycert_string";
-    
-    string channelName = "Rubin's channel";
-    string uidstr = "WoWoRubin";
-
-    getTokenV3(token, appid, channelName, cert, uidstr);
-    printf("rtcTokenV3:%s appid:%s channel:%s cert:%s uid:%s\n",
-           token.c_str(), appid.c_str(), channelName.c_str(), cert.c_str(), uidstr.c_str());
-}
 
 int main()
 {
-    // rtc token generator;
-    rtcToken();
+    string appid       = "5zaq309y5lzv4r3elxbufz6t6yzia0i5";
+    string cert        = "0lxwdt109ivrzg9w09dhgkk5wgjs8dqy5u08trysf0a4697c";
+    
+    string channelName = "Rubin's channel";
+    uint64_t uid       = 123456789;
 
-    // webrtc token generator
-    rtcTokenV3();
+    string uidstr      = "WoWoRubin";
+
+    // init Token generator Factory, and set appid cert
+    Aestron::Token::TokenFactory& tokenF = *Aestron::Token::TokenFactory::getInstance();
+    tokenF.init(appid, cert);
+
+    // generate token
+    string token = tokenF.genToken(uid, channelName);
+    printf("Token:%s appid:%s channel:%s cert:%s uid:%lu\n\n",
+           token.c_str(), appid.c_str(), channelName.c_str(), cert.c_str(), uid);
+
+    // verify token, just for test. Remove if don't need.
+    bool verifyResult = tokenF.checkToken(token, uid, channelName);
+    printf("veryifytoken ret:%s token:%s appid:%s channel:%s cert:%s uid:%lu\n\n",
+           verifyResult == true ? "success" : "failed", token.c_str(), appid.c_str(),
+           channelName.c_str(), cert.c_str(), uid);
+
+    // generate token v3, which is used by webrtc.
+    string tokenv3 = tokenF.genTokenV3(uidstr, channelName);
+    printf("TokenV3:%s appid:%s channel:%s cert:%s uid:%s\n\n",
+        tokenv3.c_str(), appid.c_str(), channelName.c_str(), cert.c_str(), uidstr.c_str());
 
     return 0;
 }

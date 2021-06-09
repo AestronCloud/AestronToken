@@ -108,8 +108,10 @@ func (this *Token) genToken(uid uint64, cname string) string {
 	return res
 }
 
+/* The entrance of generating the token*/
 /* 生成webrtc token入口 */
 func (this *Token) genTokenV3(uidstr string, cname string) string {
+	// Generation time, salt, expiration date
 	// 生成时间，盐值，有效期
 	var gents uint32 = uint32(time.Now().Unix())
 	rand.Seed(time.Now().UnixNano())
@@ -118,6 +120,7 @@ func (this *Token) genTokenV3(uidstr string, cname string) string {
 
 	resbuffer := new(bytes.Buffer)
 
+	// Serialize the signature
 	// 序列号签名
 	sigbuf := this.genSignature2(uidstr, cname, salt, gents, effts)
 	var siglen uint16
@@ -125,18 +128,21 @@ func (this *Token) genTokenV3(uidstr string, cname string) string {
 	binary.Write(resbuffer, binary.BigEndian, siglen)
 	binary.Write(resbuffer, binary.BigEndian, sigbuf)
 
+	// Serialize the crc32 checksum of the UID
 	// 序列化uid crc32
 	bytesbuffer := new(bytes.Buffer)
 	bytesbuffer.WriteString(uidstr)
 	crc32uid := crc32.ChecksumIEEE(bytesbuffer.Bytes())
 	binary.Write(resbuffer, binary.BigEndian, crc32uid)
 
+	// Serialize the crc32 checksum of the  channel name
 	// 序列化 channel name crc32
 	bytesbuffer.Reset()
 	bytesbuffer.WriteString(cname)
 	crc32cname := crc32.ChecksumIEEE(bytesbuffer.Bytes())
 	binary.Write(resbuffer, binary.BigEndian, crc32cname)
 
+	// Serialize the salt, generation time, and expiration date
 	// 序列化盐值、生成时间、有效时间
 	binary.Write(resbuffer, binary.BigEndian, salt)
 	binary.Write(resbuffer, binary.BigEndian, gents)
@@ -200,13 +206,13 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 		return false
 	}
 
-	// check if time expired
+	// check if time expired, 检查token是否过期
 	if (gents + effts) < uint32(time.Now().Unix()) {
 		fmt.Println("token expired")
 		return false
 	}
 
-	// check if signature valid
+	// check if signature valid, 检查签名是否有效
 	signatureNow := string(this.genSignature(uid, cname, salt, gents, effts))
 	if sigstr == signatureNow {
 		fmt.Println("token valid!!!!")
@@ -218,16 +224,20 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 }
 
 func main() {
+	// init token witch appid and cert;
 	var token Token
 	token.init("myappid_string", "mycert_string")
+
+	// generate token
 	fmt.Println("token:", token.genToken(3344444444123123, "45612312312312"))
 
+	// generate token v3, which is used by Aestron webrtc.
 	fmt.Println("WebRtc token:", token.genTokenV3("Rubin", "test"))
 
+	// this is for check token test. remove if don't need
 	tokenstr := os.Args[1]
 	cname := os.Args[2]
 	uid, _ := strconv.ParseUint(os.Args[3], 10, 64)
-
 	fmt.Println(token.checkToken(tokenstr, cname, uid))
 	fmt.Println(token.genToken(uid, cname));
 }

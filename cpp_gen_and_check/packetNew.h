@@ -1,10 +1,3 @@
-//
-// Created by Administrator on 2018/12/13.
-//
-//新的packet文件，因为之前的文件对大小端的处理有误，但是全网都已经使用了这套大小端处理逻辑
-//现在不能随便改这个大小端逻辑，针对web那边发过来的二进制数据，单独起一个文件进行解析处理
-//其中也涉及到网络字节序，大小端的处理逻辑，也是其中和之前的不同点
-//注：目前只能用于web与该前端之间的交互，千万不要使用在其他地方
 #ifndef LBSFORVIDEO_PACKETNEW_H
 #define LBSFORVIDEO_PACKETNEW_H
 
@@ -18,10 +11,8 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
-#include <map> // CARE
+#include <map>
 #include <arpa/inet.h>
-
-//using namespace Endian;
 
 class PackNew
 {
@@ -34,16 +25,12 @@ public:
         return((uint64_t(htonl((uint32_t)i64)) << 32) |htonl((uint32_t(i64>>32))));
     }
 
-    // IMPORTANT remember the buffer-size before pack. see data(), size()
-    // reserve a space to replace packet header after pack parameter
-    // sample below: OffPack. see data(), size()
     PackNew(PackBuffer & pb, size_t off = 0) : m_buffer(pb)
     {
         m_offset = pb.size() + off;
         m_buffer.resize(m_offset);
     }
 
-    // access this packet.
     char * data()
     {
         return m_buffer.data() + m_offset;
@@ -117,7 +104,7 @@ public:
     {
     }
 public:
-    // replace. pos is the buffer offset, not this Pack m_offset
+
     size_t replace(size_t pos, const void * data, size_t rplen)
     {
         m_buffer.replace(pos, (const char*)data, rplen);
@@ -129,13 +116,11 @@ public:
     }
     size_t replace_uint16(size_t pos, uint16_t u16)
     {
-        //u16 = xhtons(u16);
         u16 = htons(u16);
         return replace(pos, &u16, 2);
     }
     size_t replace_uint32(size_t pos, uint32_t u32)
     {
-        //u32 = xhtonl(u32);
         u32 = htonl(u32);
         return replace(pos, &u32, 4);
     }
@@ -221,7 +206,6 @@ public:
             throw UnpackError("pop_uint16: not enough data");
 
         uint16_t i16 = *((uint16_t*)m_data);
-        //i16 = xntohs(i16);
         i16 = ntohs(i16);
         m_data += 2u; m_size -= 2u;
         return i16;
@@ -253,7 +237,6 @@ public:
 
     Varstr pop_varstr_ptr() const
     {
-        // Varstr { uint16_t size; const char * data; }
         Varstr vs;
         vs.m_size = pop_uint16();
         vs.m_data = pop_fetch_ptr(vs.m_size);
@@ -312,7 +295,6 @@ struct MarshallableNew
     }
 };
 
-// Marshallable helper
 inline std::ostream & operator << (std::ostream & os, const MarshallableNew & m)
 {
     return m.trace(os);
@@ -330,7 +312,6 @@ inline const UnpackNew & operator >> (const UnpackNew & p, const MarshallableNew
     return p;
 }
 
-// base type helper
 inline PackNew & operator << (PackNew & p, bool sign)
 {
     p.push_uint8(sign ? 1 : 0);
@@ -384,8 +365,6 @@ inline const UnpackNew & operator >> (const UnpackNew & p, Varstr & pstr)
     return p;
 }
 
-// pair.first helper
-// XXX std::map::value_type::first_type unpack ��Ҫ�ر���
 inline const UnpackNew & operator >> (const UnpackNew & p, uint32_t & i32)
 {
     i32 =  p.pop_uint32();
@@ -400,14 +379,12 @@ inline const UnpackNew & operator >> (const UnpackNew & p, uint64_t & i64)
 
 inline const UnpackNew & operator >> (const UnpackNew & p, std::string & str)
 {
-    // XXX map::value_type::first_type
     str = p.pop_varstr();
     return p;
 }
 #ifdef WIN32
 inline const UnpackNew & operator >> (const UnpackNew & p, std::wstring & str)
 {
-    // XXX map::value_type::first_type
     str = p.pop_varwstring32();
     return p;
 }
@@ -453,11 +430,10 @@ inline const UnpackNew& operator >> (const UnpackNew& s, std::pair<T1, T2>& p)
     return s;
 }
 
-// container marshal helper
 template < typename ContainerClass >
 inline void marshal_container(PackNew & p, const ContainerClass & c)
 {
-    p.push_uint32(uint32_t(c.size())); // use uint32 ...
+    p.push_uint32(uint32_t(c.size()));
     for(typename ContainerClass::const_iterator i = c.begin(); i != c.end(); ++i)
         p << *i;
 }
@@ -474,8 +450,6 @@ inline void unmarshal_container(const UnpackNew & p, OutputIterator i)
     }
 }
 
-//add by heiway 2005-08-08
-//and it could unmarshal list,vector etc..
 template < typename OutputContainer>
 inline void unmarshal_containerEx(const UnpackNew & p, OutputContainer & c)
 {

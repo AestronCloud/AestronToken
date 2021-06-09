@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// boost::pool min accord
 template <unsigned BlockSize>
 struct default_block_allocator_malloc_free
 {
@@ -121,11 +120,11 @@ template <typename BlockAllocator, unsigned MaxBlocks>
 inline bool BlockBuffer<BlockAllocator, MaxBlocks >::append(const char * app, size_t len)
 {
 	if (len == 0)
-		return true; // no data
+		return true;
 
 	if (increase_capacity(len))
 	{
-		memmove(tail(), app, len); // append
+		memmove(tail(), app, len);
 		m_size += len;
 		return true;
 	}
@@ -141,7 +140,7 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::reserve(size_t n)
 template <typename BlockAllocator, unsigned MaxBlocks>
 inline bool BlockBuffer<BlockAllocator, MaxBlocks >::resize(size_t n, char c)
 {
-	if (n > size()) // increase
+	if (n > size())
 	{
 		size_t len = n - size();
 		if (!increase_capacity(len))
@@ -155,10 +154,10 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::resize(size_t n, char c)
 template <typename BlockAllocator, unsigned MaxBlocks>
 inline bool BlockBuffer<BlockAllocator, MaxBlocks >::replace(size_t pos, const char * rep, size_t n)
 {
-	if (pos >= size()) // out_of_range ?
+	if (pos >= size())
 		return append(rep, n);
 
-	if (pos + n >= size()) // replace all beginning with position pos
+	if (pos + n >= size())
 	{
 		m_size = pos;
 		return append(rep, n);
@@ -171,11 +170,11 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::replace(size_t pos, const c
 template <typename BlockAllocator, unsigned MaxBlocks>
 inline void BlockBuffer<BlockAllocator, MaxBlocks >::erase(size_t pos, size_t n, bool hold)
 {
-	assert(pos <= size()); // out_of_range debug.
+	assert(pos <= size());
 
-	size_t m = size() - pos; // can erase
+	size_t m = size() - pos;
 	if (n >= m)
-		m_size = pos; // all clear after pos
+		m_size = pos;
 	else
 	{
 		m_size -= n;
@@ -186,10 +185,6 @@ inline void BlockBuffer<BlockAllocator, MaxBlocks >::erase(size_t pos, size_t n,
 		free();
 }
 
-/*
- * after success increase_capacity : freespace() >= increase_size
- * if false : does not affect exist data
- */
 template <typename BlockAllocator, unsigned MaxBlocks>
 inline bool BlockBuffer<BlockAllocator, MaxBlocks >::increase_capacity(size_t increase_size)
 {
@@ -198,7 +193,7 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::increase_capacity(size_t in
 	size_t newblock = m_block;
 
 	size_t free = freespace();
-	//if (increase_size > maxsize() - free) throw std::out_of_range("BlockBuffer out of range");
+
 	if (free >= increase_size) return true;
 	increase_size -= free;
 	newblock += increase_size / allocator::requested_size;
@@ -210,7 +205,7 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::increase_capacity(size_t in
 	if (0 == newdata) return false;
 
 	if (m_block > 0)
-	{	// copy old data and free old block
+	{
 		memcpy(newdata, m_data, m_size);
 		allocator::ordered_free(m_data, m_block);
 	}
@@ -247,7 +242,7 @@ public:
 	bool empty() const { return m_sb->size() == m_pos; }
 	void release()	   { m_sb = NULL; }
 private:
-	Buffer * m_sb; // release need pointer.
+	Buffer * m_sb;
 	size_t m_pos;
 };
 #endif // __SNOX_BLOCKBUFFER_H_INCLUDE__

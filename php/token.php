@@ -73,11 +73,13 @@ class Token {
     }
 }
 
+// init token generator witch appid and cert
 $token = new Token("myappid_string", "mycert_string");
+
 // token generator
 echo $token->genToken(3344444444123123, "45612312312312") . "\n";
 
-// tokenV3, webrtc should use this token
+// tokenV3, which is used by Aestron webrtc
 echo $token->genTokenV3("Rubin", "test") . "\n";
 
 ?>

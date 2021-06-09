@@ -8,8 +8,6 @@
 #include "urlEncrypt.h"
 using namespace std;
 
-const static unsigned char* bUrl64 =
-		(unsigned char *) "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 const static unsigned char* base64 =
 		(unsigned char *) "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -60,23 +58,6 @@ int urlEncrypt::base64Decode( const char* data, uint32_t data_len,
 	{
 		++pad ;
 	}
-
-
-	/* Adapted original code to handle missing padding */
-//	if (data_len == 1) {
-//		return -1;
-//	} else if (data_len == 2) {
-//		pad = 2;
-//		data_len = 4;
-//	} else if (data_len % 4 == 2) {
-//		pad = 2;
-//		data_len += 2;
-//	} else if (data_len % 4 == 3) {
-//		pad = 1;
-//		data_len += 1;
-//	} else {
-//		pad = 0;
-//	}
 
 	*result_len = 3 * data_len / 4 - pad;
 
@@ -148,43 +129,5 @@ unsigned char* urlEncrypt::base64Encode(unsigned char* data, uint32_t data_len, 
 		//*result_len -= 1;
 	}
 
-	/* We do not use \0 termination in our adaption
-	result[rc] = 0;
-	*/
 	return result;
 }
-
-#ifdef AES_BLOCK_SIZE
-#undef AES_BLOCK_SIZE
-#endif
-#define AES_BLOCK_SIZE 16
-
-static AES_KEY aes_key;
-#define AES_KEY_LEN  16 // 128bit
-
-static uint8_t key_bin[AES_KEY_LEN] = {0x46,0xb9,0xf9,0xc6,0x14,0x74,0x01,0xab,
-							 0x8a,0x2b,0x11,0xbc,0x0a,0xec,0x97,0xb0};
-							 
-							 
-//static uint8_t aes_iv[AES_BLOCK_SIZE]={0x16,0xcc,0xe0,0x17,0x43,0x93,0x49,0x5e,
-//                                             0xac,0xa4,0x4a,0x29,0x85,0x8d,0xf6,0x1e} ;  
-static uint8_t aes_iv[AES_BLOCK_SIZE];//={0,0,0,0,0,0,0,0,             0,0,0,0,0,0,0,0 } ;  
-
-                                             
-#define MAX_URL_SIZE 150
-#define MAX_MSG_LEN  256
-
-
-
-#if 0
-void print_hex(uint8_t* buf, uint32_t len) {
-	//Print results:
-	for(int i=0;i<len;i++) {
-		FUNLOG(Info,"%02X ",buf[i]);
-		if(15 == i%16)
-			FUNLOG(Info,"\n");
-	}
-	FUNLOG(Info,"\n");
-}
-#endif
-

@@ -7,13 +7,18 @@
 #include <iostream>
 #include <string>
 
-namespace TokenChecker
+namespace Aestron{
+namespace Token
 {
 struct RawMsg: public MarshallableNew
 {
     uint32_t salt;
-    uint32_t generateTs; //生成时的时间
-    uint32_t effectiveTs; //持续时长
+    // generation time
+    // 生成时的时间
+    uint32_t generateTs;
+    // Verification time
+    // 持续时长
+    uint32_t effectiveTs;
     RawMsg(uint32_t salt, uint32_t genTs, uint32_t effeTs)
     : salt(salt)
     , generateTs(genTs)
@@ -50,6 +55,9 @@ struct TokenContent: public MarshallableNew
     }
 };
 
-}
+}// namespace token
+
+}// namespace token
+
 
 #endif // _PROTOCOL_HEADER_

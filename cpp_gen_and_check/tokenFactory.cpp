@@ -1,38 +1,40 @@
-#include "tokenCheck.h"
+#include "tokenFactory.h"
 #include "urlEncrypt.h"
 #include "packetNew.h"
 #include <zlib.h>
 
 #include <sstream>
 using namespace std;
+using namespace Aestron::Token;
 
-
-TokenCheck* TokenCheck::getInstance()
+TokenFactory* TokenFactory::getInstance()
 {
-    static TokenCheck tokenchecker;
+    static TokenFactory tokenchecker;
     return &tokenchecker;
 }
 
-uint32_t TokenCheck::init(const string& appId, const string& certificate)
+uint32_t TokenFactory::init(const string& appId, const string& certificate)
 {
     m_appId       = appId;
     m_certificate = certificate;
     return 0;
 }
 
-string TokenCheck::version()
+string TokenFactory::version()
 {
     return "001";
 }
 
-string TokenCheck::version3()
+string TokenFactory::version3()
 {
     return "003";
 }
 
-bool TokenCheck::checkToken(const string &token, uint64_t uid, const string& channelName)
+bool TokenFactory::checkToken(const string &token, uint64_t uid, const string& channelName)
 {
-    const static uint32_t effecTsGap = 10; //10s的过期波动时间
+    // 10 seconds of expiration time fluctuation
+    // 10s的过期波动时间
+    const static uint32_t effecTsGap = 10;
 
     TokenResult result;
     result.m_channelName = channelName;
@@ -41,13 +43,14 @@ bool TokenCheck::checkToken(const string &token, uint64_t uid, const string& cha
     result.m_uid = uid;
     result.m_uidStr = oss.str();
 
-    TokenCheck tokenCheck = parseToken(token, result);
+    parseToken(token, result);
     if(!result.m_isTokenValid)
     {
-        FUNLOG(Info,"token %s invalid.\n", token.c_str());
+        FUNLOG(Info,"token %s invalid.", token.c_str());
         return false;
     }
 
+    // Generate the signature used for verification
     //生成签名用于校验
     RawMsg msg(result.m_salt, result.m_genTs, result.m_effeTs);
 
@@ -65,43 +68,40 @@ bool TokenCheck::checkToken(const string &token, uint64_t uid, const string& cha
 
     if ( 0 != signatureNow.compare(result.m_signature))
     {
-        FUNLOG(Info, "signatrue generated != signature recv. %s", token.c_str());
+        FUNLOG(Info, "signatrue generated != signature recv. %s-%s", signatureNow.c_str(), result.m_signature.c_str());
         return false;
     }
 
     return true;
 }
 
-TokenCheck TokenCheck::parseToken(const string& token, TokenResult& result)
+void TokenFactory::parseToken(const string& token, TokenResult& result)
 {
     if(token.empty())
     {
         FUNLOG(Info, "token is %lu, return.", token.size());
-        return TokenCheck();
+        return;
     }
 
     if (token.substr(0, VERSION_LENGTH) != version())
     {
-        return TokenCheck();
+        FUNLOG(Info, "check version failed. %s", token.c_str());
+        return;
     }
 
     try {
-        TokenCheck tokenCheck;
-        tokenCheck.m_appId = token.substr(VERSION_LENGTH, APP_ID_LENGTH);
-
-        //todo:错误判断
         uint8_t decodeResult[1024];
         uint32_t resultLen = 0;
         string base64Src = token.substr(VERSION_LENGTH + APP_ID_LENGTH, token.size());
         urlEncrypt::base64Decode(base64Src.c_str(), base64Src.length(), decodeResult, &resultLen);
 
-        //todo:反序列化
         UnpackNew tokenUp(decodeResult, resultLen);
         TokenContent content;
         try {
             content.unmarshal(tokenUp);
         } catch(std::exception& ex) {
-            return TokenCheck();
+            FUNLOG(Info, "unpack failed. %s %s", token.c_str(), ex.what());
+            return;
         }
 
         result.m_signature = content.signature;
@@ -111,25 +111,20 @@ TokenCheck TokenCheck::parseToken(const string& token, TokenResult& result)
         result.m_genTs = content.msg.generateTs;
         result.m_effeTs = content.msg.effectiveTs;
 
-
-
         result.m_isTokenValid = true;
 
         FUNLOG(Info,"token %s, appId %s, crcUid %u, crcChannelName %u, generate ts %u, effective ts %u.",
                 token.c_str(), m_appId.c_str(), result.m_crc32Uid, result.m_crc32ChannelName, result.m_genTs,
                 result.m_effeTs);
-        return tokenCheck;
 
     } catch (std::exception& e) {
         FUNLOG(Info,"parse error, token %s.", token.c_str());
-        return TokenCheck();
+        return;
     }
-
-    return TokenCheck();
 }
 
 
-string TokenCheck::genSignature(const string &certificate, const string& appId, const string& uid,
+string TokenFactory::genSignature(const string &certificate, const string& appId, const string& uid,
                                 const string& channelName, const string& rawMsg)
 {
     std::stringstream ss;
@@ -137,10 +132,12 @@ string TokenCheck::genSignature(const string &certificate, const string& appId, 
     return (HmacSign(certificate, ss.str(), HMAC_LENGTH));
 }
 
-string TokenCheck::genToken(uint64_t uid, const std::string& channelName)
+string TokenFactory::genToken(uint64_t uid, const std::string& channelName)
 {
+    // Expiration time. One day. 
     //有效期一天
-    RawMsg rawMsg(GenerateSalt(), (uint32_t)time(NULL), 24 * 3600);
+    uint32_t effetivets = 24 * 3600;
+    RawMsg rawMsg(GenerateSalt(), (uint32_t)time(NULL), effetivets);
 
     PackBuffer packBufMsg;
     PackNew packMsg(packBufMsg);
@@ -152,7 +149,6 @@ string TokenCheck::genToken(uint64_t uid, const std::string& channelName)
     oss << uid;
     string uidstr = oss.str();
 
-    //序列化
     TokenContent content;
     content.signature = genSignature(m_certificate, m_appId, uidstr, channelName, rawMsgStr);
     content.crc32Uid = crc32(0, reinterpret_cast<Bytef*>(const_cast<char*>(uidstr.c_str())), uidstr.length());
@@ -164,7 +160,7 @@ string TokenCheck::genToken(uint64_t uid, const std::string& channelName)
     PackNew tokenPack(packBuf);
     content.marshal(tokenPack);
 
-    //base64
+    // base64
     uint8_t base64Result[1024];
     uint32_t resultLen = 0;
 
@@ -172,18 +168,20 @@ string TokenCheck::genToken(uint64_t uid, const std::string& channelName)
 
     base64Result[resultLen] = '\0';
 
-    std::stringstream ss;
-    ss << TokenCheck::version() << m_appId << string((char*)base64Result, resultLen);
+    std::ostringstream ss;
+    ss << TokenFactory::version() << m_appId << string((char*)base64Result, resultLen);
 
-    FUNLOG(Info,"%s, baseResult %s, crc32Uid %u, salt %u, generate ts %u, effective ts %u.\n",
+    FUNLOG(Info,"%s, baseResult %s, crc32Uid %u, salt %u, generate ts %u, effective ts %u",
             ss.str().c_str(), base64Result, content.crc32Uid, rawMsg.salt, rawMsg.generateTs, rawMsg.effectiveTs);
     return ss.str();
 }
 
-string TokenCheck::genTokenV3(const string& uidstr, const string& channelName)
+string TokenFactory::genTokenV3(const string& uidstr, const string& channelName)
 {
+    // Expiration time. One day. 
     //有效期一天
-    RawMsg rawMsg(GenerateSalt(), (uint32_t)time(NULL), 24 * 3600);
+    uint32_t effetivets = 24 * 3600;
+    RawMsg rawMsg(GenerateSalt(), (uint32_t)time(NULL), effetivets);
 
     PackBuffer packBufMsg;
     PackNew packMsg(packBufMsg);
@@ -191,7 +189,6 @@ string TokenCheck::genTokenV3(const string& uidstr, const string& channelName)
 
     string rawMsgStr = string(packMsg.data(), packMsg.size());
 
-    // serialize
     TokenContent content;
     content.signature = genSignature(m_certificate, m_appId, uidstr, channelName, rawMsgStr);
     content.crc32Uid = crc32(0, reinterpret_cast<Bytef*>(const_cast<char*>(uidstr.c_str())), uidstr.length());
@@ -212,9 +209,9 @@ string TokenCheck::genTokenV3(const string& uidstr, const string& channelName)
     base64Result[resultLen] = '\0';
 
     std::stringstream ss;
-    ss << TokenCheck::version3() << m_appId << string((char*)base64Result, resultLen);
+    ss << TokenFactory::version3() << m_appId << string((char*)base64Result, resultLen);
 
-    FUNLOG(Info,"gentoken %s, baseResult %s, crc32Uid %u, salt %u, generate ts %u, effective ts %u.\n",
+    FUNLOG(Info,"%s, baseResult %s, crc32Uid %u, salt %u, generate ts %u, effective ts %u",
             ss.str().c_str(), base64Result, content.crc32Uid, rawMsg.salt, rawMsg.generateTs, rawMsg.effectiveTs);
     return ss.str();
 }

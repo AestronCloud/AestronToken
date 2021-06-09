@@ -25,7 +25,7 @@ struct Varstr {
 		return m_size;
 	}
 
-	template<class T> // std::string cstr blockbuffer
+	template<class T>
 	explicit Varstr(T & s) {
 		*this = s;
 	}

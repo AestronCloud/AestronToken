@@ -57,7 +57,11 @@ class Token:
             pack(">I", gents),
             pack(">I", effts)]))            
 
-
+# init token generator witch appid and cert
 token = Token("myappid_string", "mycert_string")
+
+# generator token
 print(token.genToken(3344444444123123, "45612312312312"))
+
+# generator token v3, which is used by webrtc.
 print(token.genTokenV3("Rubin", "test"))
