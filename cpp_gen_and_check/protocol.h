@@ -2,7 +2,6 @@
 #ifndef _PROTOCOL_HEADER_
 #define _PROTOCOL_HEADER_
 //======================================================================================
-//#include "comm.h"
 #include "packet.h"
 #include "packetNew.h"
 #include <iostream>
@@ -33,6 +32,7 @@ struct RawMsg: public MarshallableNew
         up >> salt >> generateTs >> effectiveTs;
     }
 };
+
 struct TokenContent: public MarshallableNew
 {
     std::string signature;
@@ -49,6 +49,7 @@ struct TokenContent: public MarshallableNew
         up >> signature >> crc32Uid >> crc32ChannelName >> msg;
     }
 };
+
 }
 
 #endif // _PROTOCOL_HEADER_

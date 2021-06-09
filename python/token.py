@@ -16,6 +16,9 @@ class Token:
     def version(self):
         return "001"
 
+    def version3(self):
+        return "003"        
+
     def genSignature(self, uid, cname, salt, gents, effts):
         return hmac.new(
             self._cert, 
@@ -24,8 +27,8 @@ class Token:
             ).digest()
 
     def genToken(self, uid, cname):
-        gents = int(time.time())                        #生成时间
-        effts = 864000                              #有效期
+        gents = int(time.time())                   #生成时间
+        effts = 864000                             #有效期
         salt = random.randint(0, 2147483648)       #盐值 0-2**31
         uidstr = str(uid)
 
@@ -39,6 +42,22 @@ class Token:
             pack(">I", gents),
             pack(">I", effts)]))
 
+    def genTokenV3(self, uidstr, cname):
+        gents = int(time.time())                   #生成时间
+        effts = 864000                             #有效期
+        salt = random.randint(0, 2147483648)       #盐值 0-2**31
 
-token = Token("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw")
+        print(crc32(uidstr), int(bin(crc32(uidstr) & 0xFFFFFFFF), 2), type(crc32(uidstr)), bin(crc32(uidstr)))
+        sign = self.genSignature(uidstr, cname, salt, gents, effts)
+        return self.version3() + self._appid + base64.b64encode("".join([
+            pack(">H", len(sign)), self.genSignature(uidstr, cname, salt, gents, effts),
+            pack(">I", int(bin(crc32(uidstr) & 0xFFFFFFFF), 2)),
+            pack(">I", int(bin(crc32(cname) & 0xFFFFFFFF), 2)),
+            pack(">I", salt),
+            pack(">I", gents),
+            pack(">I", effts)]))            
+
+
+token = Token("myappid_string", "mycert_string")
 print(token.genToken(3344444444123123, "45612312312312"))
+print(token.genTokenV3("Rubin", "test"))

@@ -1,14 +1,8 @@
 #ifndef __TOKEN__H__
 #define __TOKEN__H__
-
-
-// for extern call header file.
-
 #include <string>
 
 using namespace std;
-
-typedef unsigned long uint64_t;
 
 
 #ifdef __cplusplus
@@ -18,9 +12,9 @@ extern "C" {
 
 void getToken(string &token, const string &appid, const string &channelName, string &cert, uint64_t uid);
 
-bool verifyToken(const string &token, const string &appid, const string &channelName, uint64_t uid);
+bool verifyToken(const string &token, const string &appid, const string &cert, uint64_t uid, const std::string& cname);
 
-void getToken3(string &token, const string &appid, const string &channelName, string &cert, const string& uidstr);
+void getTokenV3(string &token, const string &appid, const string &channelName, string &cert, const string& uidstr);
 
 #ifdef __cplusplus
 }

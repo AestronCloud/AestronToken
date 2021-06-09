@@ -4,6 +4,7 @@ define('BIG_ENDIAN', pack('L', 1) === pack('N', 1));
 
 class Token {
     private $VERSION;
+    private $VERSION3;
     private $APPID;
     private $CERTIFICATE;
 
@@ -14,6 +15,7 @@ class Token {
         $this->APPID = $appid;
         $this->CERTIFICATE = $cert;
         $this->VERSION = "001";
+        $this->VERSION3 = "003";
     }
 
     private function genSignature($uid, $cname, $salt, $gents, $effts) {
@@ -40,9 +42,6 @@ class Token {
         // 有效期，一天
         $effts = 864000;
 
-        $gents = 1;
-        $salt = 1;
-
         $sigbuf = $this->genSignature($uid, $cname, $salt, $gents, $effts);
         return $this->VERSION . $this->APPID . 
                 base64_encode(
@@ -52,9 +51,33 @@ class Token {
                 );   
     }
 
+    function genTokenV3($uid, $cname) {
+        // 生成时间，盐值，有效期
+        $gents = time();
+        echo "gents: " . $gents . "\n";
+
+        // 随机数，0-2^31
+        $salt = mt_rand(0, 2147483648);  
+        echo "salt: " . $salt . "\n";
+
+        // 有效期，一天
+        $effts = 864000;
+
+        $sigbuf = $this->genSignature($uid, $cname, $salt, $gents, $effts);
+        return $this->VERSION3 . $this->APPID . 
+                base64_encode(
+                    pack("n", strlen($sigbuf)) . $sigbuf . 
+                    pack("N", crc32("" . $uid)) . pack("N", crc32($cname)) . 
+                    pack("N", $salt) . pack("N", $gents) . pack("N", $effts)
+                );   
+    }
 }
 
-$token = new Token("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw");
+$token = new Token("myappid_string", "mycert_string");
+// token generator
 echo $token->genToken(3344444444123123, "45612312312312") . "\n";
+
+// tokenV3, webrtc should use this token
+echo $token->genTokenV3("Rubin", "test") . "\n";
 
 ?>

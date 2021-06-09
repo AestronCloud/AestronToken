@@ -232,12 +232,9 @@ public:
         if(m_size < 4u)
             throw UnpackError("pop_uint32: not enough data");
         uint32_t i32 = *((uint32_t*)m_data);
-        //FUNLOG(Info, "endian for test i32 %u", i32);
 
-        //i32 = xntohl(i32);
         i32 = ntohl(i32);
 
-        //FUNLOG(Info, "endian for test i32 after %u", i32);
         m_data += 4u; m_size -= 4u;
         return i32;
     }

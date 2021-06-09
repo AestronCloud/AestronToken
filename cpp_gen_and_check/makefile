@@ -10,15 +10,11 @@ AR  = ar -cqs
 # itermidiate objects
 OBJ = tokenCheck.o token.o urlEncrypt.o 
 
-
-# include file path
-#INC = -I. 
 INCLUDE = -I.
 
 TARGETS = $(BIN)/$(TLIB) example.o token_d
  
 all : $(TARGETS)
-#	cp $(TARGETS) ../
 
 $(BIN)/$(TLIB) : $(OBJ)
 	$(AR) $@ $(OBJ) 
@@ -37,7 +33,6 @@ token_d : $(OBJ) $(BIN)/libtoken.a example.o
 example.o : example.cpp
 	g++ -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
-# prepare the bin dir	
 .PHONY : prepare	
 prepare : 
 		-mkdir $(BIN)

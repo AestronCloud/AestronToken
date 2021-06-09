@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FUNLOG(...)
-#define log(...)
-
 // boost::pool min accord
 template <unsigned BlockSize>
 struct default_block_allocator_malloc_free
@@ -216,8 +213,6 @@ inline bool BlockBuffer<BlockAllocator, MaxBlocks >::increase_capacity(size_t in
 	{	// copy old data and free old block
 		memcpy(newdata, m_data, m_size);
 		allocator::ordered_free(m_data, m_block);
-    log(Debug, "addr:%p increase capacity free:%d increase_size:%d and now old block:%d new block:%d, total blocks:%d",
-      this, free, increase_size, m_block, newblock, s_peak_total_blocks);
 	}
 
 	s_current_total_blocks += newblock - m_block;

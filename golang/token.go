@@ -21,6 +21,10 @@ func version() string {
 	return "001"
 }
 
+func version3() string {
+	return "003"
+}
+
 type Token struct {
 	appid string // appidStr
 	cert  string //
@@ -36,6 +40,23 @@ func (this *Token) genSignature(uid uint64, cname string, salt uint32, gents uin
 	buffer := new(bytes.Buffer)
 	buffer.WriteString(this.appid)
 	buffer.WriteString(strconv.FormatUint(uid, 10))
+	buffer.WriteString(cname)
+	buffer.WriteString(this.cert)
+
+	binary.Write(buffer, binary.BigEndian, []uint32{salt, gents, effts})
+
+	key := []byte(this.cert)
+	mac := hmac.New(sha1.New, key)
+	mac.Write(buffer.Bytes())
+
+	return mac.Sum(nil)
+}
+
+func (this *Token) genSignature2(uidstr string, cname string, salt uint32, gents uint32, effts uint32) []byte {
+
+	buffer := new(bytes.Buffer)
+	buffer.WriteString(this.appid)
+	buffer.WriteString(uidstr)
 	buffer.WriteString(cname)
 	buffer.WriteString(this.cert)
 
@@ -83,6 +104,45 @@ func (this *Token) genToken(uid uint64, cname string) string {
 	binary.Write(resbuffer, binary.BigEndian, effts)
 
 	res := version() + this.appid + base64.StdEncoding.EncodeToString(resbuffer.Bytes())
+
+	return res
+}
+
+/* 生成webrtc token入口 */
+func (this *Token) genTokenV3(uidstr string, cname string) string {
+	// 生成时间，盐值，有效期
+	var gents uint32 = uint32(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
+	var salt uint32 = rand.Uint32()
+	var effts uint32 = 864000
+
+	resbuffer := new(bytes.Buffer)
+
+	// 序列号签名
+	sigbuf := this.genSignature2(uidstr, cname, salt, gents, effts)
+	var siglen uint16
+	siglen = uint16(len(sigbuf))
+	binary.Write(resbuffer, binary.BigEndian, siglen)
+	binary.Write(resbuffer, binary.BigEndian, sigbuf)
+
+	// 序列化uid crc32
+	bytesbuffer := new(bytes.Buffer)
+	bytesbuffer.WriteString(uidstr)
+	crc32uid := crc32.ChecksumIEEE(bytesbuffer.Bytes())
+	binary.Write(resbuffer, binary.BigEndian, crc32uid)
+
+	// 序列化 channel name crc32
+	bytesbuffer.Reset()
+	bytesbuffer.WriteString(cname)
+	crc32cname := crc32.ChecksumIEEE(bytesbuffer.Bytes())
+	binary.Write(resbuffer, binary.BigEndian, crc32cname)
+
+	// 序列化盐值、生成时间、有效时间
+	binary.Write(resbuffer, binary.BigEndian, salt)
+	binary.Write(resbuffer, binary.BigEndian, gents)
+	binary.Write(resbuffer, binary.BigEndian, effts)
+
+	res := version3() + this.appid + base64.StdEncoding.EncodeToString(resbuffer.Bytes())
 
 	return res
 }
@@ -159,8 +219,10 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 
 func main() {
 	var token Token
-	token.init("m4jxlvauzpen4rteq9p45g641kb", "dftj8oxlseg3r4q4zyzucf0xldmhpyk934ihymtw")
+	token.init("myappid_string", "mycert_string")
 	fmt.Println("token:", token.genToken(3344444444123123, "45612312312312"))
+
+	fmt.Println("WebRtc token:", token.genTokenV3("Rubin", "test"))
 
 	tokenstr := os.Args[1]
 	cname := os.Args[2]
