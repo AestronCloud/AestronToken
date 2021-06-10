@@ -7,8 +7,8 @@ C++
        Please also confirm that openssl ssl-dev has been installed or you can install with (apt install -y openssl libssl-dev). 
        检查本地环境，C++版本token生成库在ubuntu1~16.04.12  gcc-5.4版本下验证无误，清确认已安装openssl ssl-dev(apt install -y openssl libssl-dev)
 
-    2. Go to the cpp_check_and_gen directory and execute ‘make’ to compile the test code;
-       进入cpp_check_and_gen，执行make编译测试代码；
+    2. Go to the "cpp" directory and execute ‘make’ to compile the test code;
+       进入cpp目录，执行make编译测试代码；
 
     3. Execute ‘token_d’. A series of tokens in string format will be generated and printed to the terminal.
        执行token_d，会生成一系列string格式的token打印到terminal。
