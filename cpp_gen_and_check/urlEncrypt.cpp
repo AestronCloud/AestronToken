@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <openssl/aes.h>
-//need -lcrypto lib
 #include <iostream>
 
 #include "urlEncrypt.h"
+
 using namespace std;
 
 const static unsigned char* base64 =

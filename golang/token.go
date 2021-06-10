@@ -226,7 +226,7 @@ func (this *Token) checkToken(token string, cname string, uid uint64) bool {
 func main() {
 	// init token witch appid and cert;
 	var token Token
-	token.init("myappid_string", "mycert_string")
+	token.init("appid_which_should_be_32_length_", "mycert_string")
 
 	// generate token
 	fmt.Println("token:", token.genToken(3344444444123123, "45612312312312"))

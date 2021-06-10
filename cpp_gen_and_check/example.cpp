@@ -7,8 +7,8 @@ using namespace std;
 
 int main()
 {
-    string appid       = "5zaq309y5lzv4r3elxbufz6t6yzia0i5";
-    string cert        = "0lxwdt109ivrzg9w09dhgkk5wgjs8dqy5u08trysf0a4697c";
+    string appid       = "appid_which_should_be_32_length_";
+    string cert        = "mycert_string";
     
     string channelName = "Rubin's channel";
     uint64_t uid       = 123456789;

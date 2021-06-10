@@ -1,4 +1,3 @@
-
 # output path
 BIN = .
 
@@ -30,9 +29,6 @@ token_d : $(OBJ) $(BIN)/libtoken.a example.o
 %.o : %.cpp
 	g++ -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
-
-example.o : example.cpp
-	g++ -g $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 .PHONY : prepare	
 prepare : 

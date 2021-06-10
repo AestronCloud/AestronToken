@@ -122,7 +122,7 @@ impl Token {
 
 fn main() {
     // init token generator witch appid and cert.
-    let token = Token::new("myappid".to_string(), "mycert_string".to_string());
+    let token = Token::new("appid_which_should_be_32_length_".to_string(), "mycert_string".to_string());
 
     // generator token.
     println!("{}", token.gen_token(3344444444123123, "45612312312312"));
