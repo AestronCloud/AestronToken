@@ -63,12 +63,20 @@ public class TokenUtils {
     }  
     
     public static String genToken(String uid, String appid, String cert,  String channelName) {
+        return genTokenWidthHead(uid, appid, cert, channelName, "001");
+    }
+
+    public static String genTokenV3(String uid, String appid, String cert,  String channelName) {
+        return genTokenWidthHead(uid, appid, cert, channelName, "003");
+    }
+
+    private static String genTokenWidthHead(String uid, String appid, String cert, String channelName, String head) {
         RawMsg rawMsg = new RawMsg();
         Random ran = new Random();
         rawMsg.salt = ran.nextInt(1000000000);
-        rawMsg.startTs = Long.valueOf(System.currentTimeMillis()/1000).intValue();
+        rawMsg.startTs = Long.valueOf(System.currentTimeMillis() / 1000).intValue();
         rawMsg.dur = 24 * 3600;
-        ByteBuffer buffer = ByteBuffer.allocate(rawMsg.size());  
+        ByteBuffer buffer = ByteBuffer.allocate(rawMsg.size());
         rawMsg.marshall(buffer);
         try {
             TokenContent tokenContent = new TokenContent();
@@ -77,18 +85,21 @@ public class TokenUtils {
             tokenContent.crc32Uid = crc32(uid);
             tokenContent.crc32ChannelName = crc32(channelName);
             tokenContent.rawMsg = rawMsg;
-            ByteBuffer buffer2 = ByteBuffer.allocate(tokenContent.size()); 
+            ByteBuffer buffer2 = ByteBuffer.allocate(tokenContent.size());
             tokenContent.marshall(buffer2);
             String base = Base64.getEncoder().encodeToString(buffer2.array());
-            return "001" + appid + base;
+            return head + appid + base;
         } catch (Exception e) {
             return "";
         }
     }
-    
+
     public static void main(String[] args) {
         String token = TokenUtils.genToken("123456789", "tomycvho4ae2qbi5zmae8v2fom4qfohp", "asdasdadsad","channelName");
+        String tokenV3 = TokenUtils.genTokenV3("123456789", "tomycvho4ae2qbi5zmae8v2fom4qfohp", "asdasdadsad","channelName");
         System.out.println(token);
+        System.out.println(tokenV3);
         TokenUtils.parseTokenInfo(token);
+        TokenUtils.parseTokenInfo(tokenV3);
     }
 }

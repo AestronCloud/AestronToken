@@ -33,6 +33,9 @@ Java
 
     3. Run the ‘java sg/bigo/token/TokenUtils’ command, and the generated token will be displayed in the Terminal.
        运行java sg/bigo/token/TokenUtils命令， 生成的 Token 会显示在 Terminal 中。
+      
+    4. If it use on web sdk, it needs to be generated with the genTokenV3 function
+        如果是websdk需要用genTokenV3函数生成
 
 
 
@@ -171,3 +174,5 @@ Request parameters
       
       version -The version number of the token. Currently, it is fixed as "001"；And fixed as "003" in web sdk.
       version -token的版本号，目前固定填 "001"; Web sdk 固定填"003"。
+
+PS：如果是web版本需要用genTokenV3函数生成token
