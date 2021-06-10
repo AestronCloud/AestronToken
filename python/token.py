@@ -58,7 +58,7 @@ class Token:
             pack(">I", effts)]))            
 
 # init token generator witch appid and cert
-token = Token("myappid_string", "mycert_string")
+token = Token("appid_which_should_be_32_length_", "mycert_string")
 
 # generator token
 print(token.genToken(3344444444123123, "45612312312312"))

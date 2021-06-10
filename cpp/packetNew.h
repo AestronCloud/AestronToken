@@ -4,10 +4,8 @@
 #include "int_types.h"
 #include "blockbuffer.h"
 #include "varstr.h"
-#include "header.h"
 #include "packet.h"
 #include "utility.h"
-
 #include <string>
 #include <iostream>
 #include <stdexcept>

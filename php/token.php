@@ -74,7 +74,7 @@ class Token {
 }
 
 // init token generator witch appid and cert
-$token = new Token("myappid_string", "mycert_string");
+$token = new Token("appid_which_should_be_32_length_", "mycert_string");
 
 // token generator
 echo $token->genToken(3344444444123123, "45612312312312") . "\n";

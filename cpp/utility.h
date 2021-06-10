@@ -5,15 +5,8 @@
 #include <openssl/hmac.h>
 #include <openssl/evp.h>
 #include <unistd.h>
-#include <netdb.h>
-#include <arpa/inet.h>
 #include <stdlib.h>
-#include <sys/ioctl.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <fcntl.h>
-#include <execinfo.h>
 #include <sstream>
 #include <iostream>
 

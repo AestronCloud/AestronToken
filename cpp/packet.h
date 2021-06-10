@@ -5,7 +5,6 @@
 #include "int_types.h"
 #include "blockbuffer.h"
 #include "varstr.h"
-#include "header.h"
 
 #include <string>
 #include <iostream>
@@ -619,7 +618,6 @@ inline Pack & operator << (Pack & p, const Varstr & pstr)
 	return p;
 }
 
-//add by suqiangwei
 template <class T1, class T2>
 inline const Unpack& operator >> (const Unpack& s, std::map<T1, T2>& p)
 {
@@ -662,16 +660,12 @@ inline Pack& operator << (Pack& s, const std::vector<T>& p)
 	return s;
 }
 
-//add end
-
 inline const Unpack & operator >> (const Unpack & p, Varstr & pstr)
 {
 	pstr = p.pop_varstr_ptr();
 	return p;
 }
 
-// pair.first helper
-// XXX std::map::value_type::first_type unpack ��Ҫ�ر���
 inline const Unpack & operator >> (const Unpack & p, uint32_t & i32)
 {
 	i32 =  p.pop_uint32();
