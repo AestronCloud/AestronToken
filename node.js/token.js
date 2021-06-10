@@ -1,11 +1,9 @@
 'use strict';
 
-const crypto = require("crypto");
+const crypto = require('crypto');
 const crc32 = require('crc32');
-const CERTIFATE = 'your certifate';
 
 const CONSTANT = {
-  VERSION: '001',
   VERSION_LENGTH: 3,
   APP_ID_LENGTH: 32,
   TWO_LENGTH: 2,
@@ -43,22 +41,26 @@ const HELPER = {
 }
 
 class Token {
-
+  constructor({ cert, appid }) {
+    if (!cert || !appid) throw new Error('初始化需要appid与证书');
+    this.cert = cert;
+    this.appid = appid;
+  }
 
   /**
    * @description token校验入口
    * @param params
    */
 
-  checkToken({ token, appid, channelName, uid }) {
-    const { salt, genTs, effeTs, signature } = this.parseToken(token);
+  checkToken({ token, channelName, uid, version = '003' }) {
+    const { salt, genTs, effeTs, signature } = this.parseToken(token, version);
     // 时间校验
     if ((genTs + effeTs) < Date.now() / 1000 ) {
       console.log('token已失效');
       return;
     }
     // 生成签名用于校验
-    const signatureNow = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
+    const signatureNow = this.genSignature(uid, channelName, { salt, genTs, effeTs } );
 
     if (signatureNow === signature) {
       console.log('token校验通过');
@@ -69,14 +71,14 @@ class Token {
     return;
   }
 
-  genToken({ appid, channelName, uid }) {
-    const { TWO_LENGTH, FOUR_LENGTH, VERSION } = CONSTANT;
+  genToken({ version = '003', channelName, uid, duration = 86400 }) {
+    const { TWO_LENGTH, FOUR_LENGTH } = CONSTANT;
     const salt = parseInt(Math.random() * 100000);
     const genTs = parseInt(Date.now() / 1000);
-    const effeTs = 864000; // 一天的秒数
+    const effeTs = duration; // 秒
 
     // 生成签名并转为buffer
-    const signature = this.genSignature(appid, uid, channelName, { salt, genTs, effeTs } );
+    const signature = this.genSignature(uid, channelName, { salt, genTs, effeTs } );
     const sbf = Buffer.from(signature, 'base64')
 
     const signLength = sbf.length;
@@ -91,18 +93,18 @@ class Token {
     db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 2, salt);
     db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 3, genTs);
     db.setUint32(TWO_LENGTH + signLength + FOUR_LENGTH * 4, effeTs);
-    return `${VERSION}${appid}${HELPER.toBuffer(ab).toString('base64')}`;
+    return `${version}${this.appid}${HELPER.toBuffer(ab).toString('base64')}`;
   }
 
   /**
    * @description 生成签名函数
    * @param
    */
-  genSignature(appid, uid, channelName, { salt, genTs, effeTs }) {
-    let ssBf = Buffer.from(appid + uid + channelName + CERTIFATE);
+  genSignature(uid, channelName, { salt, genTs, effeTs }) {
+    let ssBf = Buffer.from(this.appid + uid + channelName + this.cert);
     let rawBf = new Uint32Array([salt, genTs, effeTs]).reverse();
     rawBf = Buffer.from(new Uint8Array(rawBf.buffer).reverse());
-    let hmac = crypto.createHmac('sha1', CERTIFATE);
+    let hmac = crypto.createHmac('sha1', this.cert);
     hmac.update(Buffer.concat([ssBf, rawBf]));
     return hmac.digest().toString('base64');
   }
@@ -111,13 +113,13 @@ class Token {
    * @description
    * @param token
    */
-  parseToken(token) {
-    const { TWO_LENGTH, FOUR_LENGTH, VERSION, VERSION_LENGTH, APP_ID_LENGTH } = CONSTANT;
+  parseToken(token, version) {
+    const { TWO_LENGTH, FOUR_LENGTH, VERSION_LENGTH, APP_ID_LENGTH } = CONSTANT;
     if (!token) {
       console.log('token is null, return.\n');
       return;
     }
-    if (token.substr(0, VERSION_LENGTH) !== VERSION) {
+    if (token.substr(0, VERSION_LENGTH) !== version) {
       console.log('version error.\n');
       return;
     }

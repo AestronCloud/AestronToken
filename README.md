@@ -99,19 +99,29 @@ Node.js
     2. Download or clone the Aestron tokenGen repository to the local.
        将 Aestron tokenGen仓库下载或克隆至本地。
     
-    3. Open the ‘tokengen/node.js/token.js’ file; modify const CERTIFATE ='your certificate'; and fill in your own certificate.
-       打开 tokengen/node.js/token.js 文件，修改 const CERTIFATE = 'your certifate'; 填入自己的证书。
-            npm i crypto crc32  // install dependencies 安装 依赖包
-       Create a ‘run.js’ file in the current directory
-       在当前目录创建 run.js文件
-
-            const Token= require('./token');
-            const tokengen=new Token();
-            console.log(`token is ${tokengen.genToken({appid:'appid',channelName:'channelName',uid:'uid'})}`)
-
-    4. Run ‘node run.js’ to generate the token.
-       运行 node run.js 生成token。
-
+    3. Use yarn or npm to install crc32 dependencies
+      使用yarn或者npm 安装 crc32 依赖包
+        yarn add crc32
+      or
+        npm install crc32
+      
+    4. Create your own run.js modeled on the test.js file
+      仿照test.js文件创建你的run.js
+      const RtcToken = require('./token');
+      const rtcToken = new RtcToken({ appid, cert }); // 此处传入你的appid与cert | Pass in your appid and cert here
+      const token = rtcToken.genToken({ channelName, uid, duration, version });
+      
+      Run run.js to generate your token
+      运行run.js生成你的token
+      
+    5. When using Aestron RTC SDK, the version is passed in '001', and the uid is passed in the uid you registered from the SDK
+    当使用Aestron RTC SDK时，version传入'001', uid传入你从SDK注册得到的uid
+    
+    When using Aestron Web RTC SDK, the version is passed in '003', and the uid is passed in the uid of the user in your own business (that is, compared with the 001 version, the registration process through the SDK is reduced, and your uid is directly used)
+    当使用Aestron Web RTC SDK时，version传入'003', uid传入你本身业务中的用户的uid（即与001版本相比减少了通过SDK的注册流程，直接使用你的uid）
+    
+    duration is the validity period, the unit is seconds, the timing starts from the generation
+    duration是有效期，单位为秒，计时从生成开始
 
 
 Go
